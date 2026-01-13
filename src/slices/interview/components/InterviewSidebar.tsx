@@ -6,6 +6,7 @@ import {
   StickyNote,
   FileDown,
   ChevronRight,
+  PlusCircle,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 
@@ -29,7 +30,20 @@ export function InterviewSidebar({
   activeTab,
   onTabChange,
 }: InterviewSidebarProps) {
-  const { session, progress, config } = useInterviewMachine()
+  const { session, progress, config, reset } = useInterviewMachine()
+
+  const handleNewInterview = () => {
+    if (
+      session &&
+      session.status === 'in_progress' &&
+      !window.confirm(
+        'Es gibt ein laufendes Interview. Sind Sie sicher, dass Sie ein neues Interview starten möchten? Die aktuelle Sitzung wird beendet.'
+      )
+    ) {
+      return
+    }
+    reset()
+  }
 
   // Get total number of categories for display
   const categoryCount = config?.kategorien.length ?? 0
@@ -158,6 +172,19 @@ export function InterviewSidebar({
               minute: '2-digit',
             })}
           </p>
+        </div>
+      )}
+
+      {/* New Interview Button */}
+      {config && (
+        <div className="border-t border-gray-200 p-4">
+          <button
+            onClick={handleNewInterview}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Neues Interview
+          </button>
         </div>
       )}
     </aside>

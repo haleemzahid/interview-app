@@ -46,6 +46,7 @@ interface InterviewMachineContextValue {
   completeInterview: () => void
   pauseInterview: () => void
   goToQuestion: (index: number) => void
+  reset: () => void
 }
 
 const InterviewMachineContext =
@@ -164,6 +165,7 @@ export function InterviewMachineProvider({
     completeInterview: () => actor.send({ type: 'COMPLETE_INTERVIEW' }),
     pauseInterview: () => actor.send({ type: 'PAUSE_INTERVIEW' }),
     goToQuestion: (index) => actor.send({ type: 'GO_TO_QUESTION', index }),
+    reset: () => actor.send({ type: 'RESET' }),
   }
 
   return (

@@ -29,6 +29,7 @@ type InterviewEvent =
   | { type: 'LOAD_CONFIG'; config: InterviewConfig }
   | { type: 'START_SESSION'; patientInfo: PatientInfo }
   | { type: 'RESUME_SESSION'; session: InterviewSession; config: InterviewConfig }
+  | { type: 'RESET' }
   | { type: 'ANSWER_QUESTION'; answer: Answer }
   | { type: 'ANSWER_FOLLOW_UP'; answer: Answer }
   | { type: 'NEXT_QUESTION' }
@@ -463,6 +464,27 @@ export const interviewMachine = setup({
     clearError: assign({
       error: null,
     }),
+
+    resetSession: assign({
+      session: null,
+      currentQuestionIndex: 0,
+      error: null,
+    }),
+
+    // Immediate save to localStorage (synchronous)
+    saveToLocalStorage: ({ context }) => {
+      if (context.session && context.config) {
+        const saveData = {
+          session: context.session,
+          config: context.config,
+        }
+        localStorage.setItem(
+          `interview-session-${context.session.id}`,
+          JSON.stringify(saveData)
+        )
+        localStorage.setItem('interview-last-session-id', context.session.id)
+      }
+    },
   },
 }).createMachine({
   id: 'interview',
@@ -491,7 +513,7 @@ export const interviewMachine = setup({
       on: {
         START_SESSION: {
           target: 'interviewing',
-          actions: 'createSession',
+          actions: ['createSession', 'saveToLocalStorage'],
         },
         RESUME_SESSION: {
           target: 'interviewing',
@@ -510,39 +532,43 @@ export const interviewMachine = setup({
           target: 'paused',
           actions: 'pauseSession',
         },
+        RESET: {
+          target: 'loaded',
+          actions: 'resetSession',
+        },
         UPDATE_NOTES: {
-          actions: 'updateNotes',
+          actions: ['updateNotes', 'saveToLocalStorage'],
         },
         ADD_MANUAL_FOLLOW_UP: {
-          actions: 'addManualFollowUp',
+          actions: ['addManualFollowUp', 'saveToLocalStorage'],
         },
         GO_TO_QUESTION: {
-          actions: 'goToQuestion',
+          actions: ['goToQuestion', 'saveToLocalStorage'],
         },
       },
       states: {
         question: {
           on: {
             ANSWER_QUESTION: {
-              actions: 'recordAnswer',
+              actions: ['recordAnswer', 'saveToLocalStorage'],
             },
             ANSWER_FOLLOW_UP: {
-              actions: 'recordFollowUpAnswer',
+              actions: ['recordFollowUpAnswer', 'saveToLocalStorage'],
             },
             NEXT_QUESTION: [
               {
                 guard: 'hasNextQuestion',
-                actions: 'goToNextQuestion',
+                actions: ['goToNextQuestion', 'saveToLocalStorage'],
               },
             ],
             PREV_QUESTION: [
               {
                 guard: 'hasPrevQuestion',
-                actions: 'goToPrevQuestion',
+                actions: ['goToPrevQuestion', 'saveToLocalStorage'],
               },
             ],
             SKIP_FOLLOW_UP: {
-              actions: 'skipFollowUp',
+              actions: ['skipFollowUp', 'saveToLocalStorage'],
             },
             AUTOSAVE: 'saving',
           },
@@ -572,7 +598,12 @@ export const interviewMachine = setup({
       },
     },
     completed: {
-      type: 'final',
+      on: {
+        RESET: {
+          target: 'loaded',
+          actions: 'resetSession',
+        },
+      },
     },
   },
 })

@@ -7,7 +7,6 @@ import {
   FileDown,
   Check,
   Copy,
-  Printer,
   CheckCircle,
   FileText,
 } from 'lucide-react'
@@ -151,25 +150,6 @@ export function ExportView() {
     await navigator.clipboard.writeText(reportText)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank')
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Interview-Bericht</title>
-            <style>
-              body { font-family: monospace; font-size: 12px; padding: 20px; white-space: pre-wrap; }
-            </style>
-          </head>
-          <body>${reportText}</body>
-        </html>
-      `)
-      printWindow.document.close()
-      printWindow.print()
-    }
   }
 
   const handleSaveAsText = async () => {
@@ -499,13 +479,6 @@ export function ExportView() {
                     Kopieren
                   </>
                 )}
-              </button>
-              <button
-                onClick={handlePrint}
-                className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-50"
-              >
-                <Printer className="h-4 w-4" />
-                Drucken
               </button>
             </div>
           </div>

@@ -14,6 +14,15 @@
     "dialog:default",
     "dialog:allow-save",
     "fs:default",
-    "fs:allow-write"
+    "fs:allow-write",
+    "fs:allow-write-text-file",
+    "fs:allow-download-write",
+    "fs:allow-download-write-recursive",
+    "fs:allow-document-write",
+    "fs:allow-document-write-recursive",
+    "fs:allow-desktop-write",
+    "fs:allow-desktop-write-recursive",
+    "fs:allow-home-write",
+    "fs:allow-home-write-recursive"
   ]
 }

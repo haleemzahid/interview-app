@@ -227,16 +227,21 @@ export function QuestionView() {
 
   // Load existing answer when question changes
   useEffect(() => {
-    if (currentQuestion && session?.answers[currentQuestion.id]) {
-      setCurrentValue(session.answers[currentQuestion.id].value)
-      setClinicianNotes(session.answers[currentQuestion.id].clinicianNotes || '')
-    } else {
-      setCurrentValue(undefined)
-      setClinicianNotes('')
+    if (currentQuestion) {
+      const existingAnswer = session?.answers[currentQuestion.id]
+      if (existingAnswer) {
+        setCurrentValue(existingAnswer.value)
+        setClinicianNotes(existingAnswer.clinicianNotes || '')
+      } else {
+        setCurrentValue(undefined)
+        setClinicianNotes('')
+      }
+      setValidationError(null)
+      setFollowUpValue('')
     }
-    setValidationError(null)
-    setFollowUpValue('')
-  }, [currentQuestion?.id, session])
+    // Only run when question ID changes, not on every session update
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestion?.id])
 
   // Load follow-up answer if exists
   useEffect(() => {
@@ -305,8 +310,17 @@ export function QuestionView() {
   ])
 
   const handlePrev = useCallback(() => {
+    // Save current answer before going back (for textarea type)
+    if (currentQuestion && currentValue !== undefined) {
+      answerQuestion({
+        questionId: currentQuestion.id,
+        value: currentValue,
+        timestamp: new Date().toISOString(),
+        clinicianNotes: clinicianNotes || undefined,
+      })
+    }
     prevQuestion()
-  }, [prevQuestion])
+  }, [currentQuestion, currentValue, clinicianNotes, answerQuestion, prevQuestion])
 
   const handleFinish = useCallback(() => {
     // Save final answer if any
