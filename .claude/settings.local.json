@@ -3,7 +3,11 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(bun add:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(bun run type-check:*)",
+      "Bash(timeout 15 bun run dev:*)",
+      "Bash(npx @tanstack/router-cli generate:*)",
+      "Bash(bun run build)"
     ],
     "deny": [],
     "ask": []

@@ -1,15 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { OrderMachineProvider } from '@/slices/order-entry/shared/machines'
-import { OrderEntryPage } from '@/slices/order-entry/OrderEntryPage'
+import { InterviewMachineProvider, InterviewPage } from '@/slices/interview'
 
-function OrderEntryRoute() {
+function InterviewRoute() {
   return (
-    <OrderMachineProvider>
-      <OrderEntryPage />
-    </OrderMachineProvider>
+    <InterviewMachineProvider>
+      <InterviewPage />
+    </InterviewMachineProvider>
   )
 }
 
 export const Route = createFileRoute('/')({
-  component: OrderEntryRoute,
+  component: InterviewRoute,
 })

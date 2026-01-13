@@ -1,0 +1,399 @@
+{
+  "id": "anamnese-interview-v1",
+  "name": "Anamnese Interview",
+  "version": "1.0.0",
+  "description": "Structured psychological anamnesis interview for adult clinical assessments",
+  "author": "Clinical Team",
+  "categories": [
+    {
+      "id": "demographics",
+      "name": "Demographics",
+      "description": "Basic patient information",
+      "order": 1
+    },
+    {
+      "id": "presenting-concerns",
+      "name": "Presenting Concerns",
+      "description": "Current symptoms and reasons for consultation",
+      "order": 2
+    },
+    {
+      "id": "medical-history",
+      "name": "Medical History",
+      "description": "Past and current medical conditions",
+      "order": 3
+    },
+    {
+      "id": "mental-health-history",
+      "name": "Mental Health History",
+      "description": "Previous psychological/psychiatric treatment",
+      "order": 4
+    },
+    {
+      "id": "family-history",
+      "name": "Family History",
+      "description": "Family medical and mental health background",
+      "order": 5
+    },
+    {
+      "id": "social-history",
+      "name": "Social History",
+      "description": "Living situation, relationships, and support system",
+      "order": 6
+    },
+    {
+      "id": "substance-use",
+      "name": "Substance Use",
+      "description": "Alcohol, tobacco, and other substances",
+      "order": 7
+    },
+    {
+      "id": "risk-assessment",
+      "name": "Risk Assessment",
+      "description": "Safety and risk factors",
+      "order": 8
+    }
+  ],
+  "questions": [
+    {
+      "id": "presenting-main-concern",
+      "text": "What brings you here today?",
+      "answerType": "text",
+      "category": "presenting-concerns",
+      "required": true,
+      "placeholder": "Describe the main reason for this consultation..."
+    },
+    {
+      "id": "presenting-duration",
+      "text": "How long have you been experiencing these concerns?",
+      "answerType": "text",
+      "category": "presenting-concerns",
+      "placeholder": "Duration of symptoms..."
+    },
+    {
+      "id": "presenting-severity",
+      "text": "How would you rate the severity of your current symptoms?",
+      "answerType": "scale",
+      "category": "presenting-concerns",
+      "scaleConfig": {
+        "min": 0,
+        "max": 10,
+        "minLabel": "No distress",
+        "maxLabel": "Extreme distress",
+        "step": 1
+      },
+      "followUpRules": [
+        {
+          "condition": ">7",
+          "followUpIds": ["presenting-severity-followup"]
+        }
+      ]
+    },
+    {
+      "id": "presenting-severity-followup",
+      "text": "Can you tell me more about what makes this particularly distressing?",
+      "answerType": "text",
+      "category": "presenting-concerns",
+      "isFollowUp": true,
+      "parentQuestionId": "presenting-severity",
+      "placeholder": "Additional details about distress..."
+    },
+    {
+      "id": "medical-chronic",
+      "text": "Do you have any chronic medical conditions?",
+      "answerType": "yes_no",
+      "category": "medical-history",
+      "followUpRules": [
+        {
+          "condition": "yes",
+          "followUpIds": ["medical-chronic-details"]
+        }
+      ]
+    },
+    {
+      "id": "medical-chronic-details",
+      "text": "Please describe your chronic medical conditions:",
+      "answerType": "text",
+      "category": "medical-history",
+      "isFollowUp": true,
+      "parentQuestionId": "medical-chronic",
+      "placeholder": "List conditions..."
+    },
+    {
+      "id": "medical-medications",
+      "text": "Are you currently taking any medications?",
+      "answerType": "yes_no",
+      "category": "medical-history",
+      "followUpRules": [
+        {
+          "condition": "yes",
+          "followUpIds": ["medical-medications-list"]
+        }
+      ]
+    },
+    {
+      "id": "medical-medications-list",
+      "text": "Please list your current medications and dosages:",
+      "answerType": "text",
+      "category": "medical-history",
+      "isFollowUp": true,
+      "parentQuestionId": "medical-medications",
+      "placeholder": "Medication name, dosage, frequency..."
+    },
+    {
+      "id": "mh-previous-treatment",
+      "text": "Have you received psychological or psychiatric treatment before?",
+      "answerType": "yes_no",
+      "category": "mental-health-history",
+      "followUpRules": [
+        {
+          "condition": "yes",
+          "followUpIds": ["mh-treatment-type", "mh-treatment-outcome"]
+        }
+      ]
+    },
+    {
+      "id": "mh-treatment-type",
+      "text": "What type of treatment did you receive?",
+      "answerType": "multi_choice",
+      "category": "mental-health-history",
+      "isFollowUp": true,
+      "parentQuestionId": "mh-previous-treatment",
+      "options": [
+        { "id": "therapy", "label": "Psychotherapy/Counseling", "value": "therapy" },
+        { "id": "medication", "label": "Psychiatric Medication", "value": "medication" },
+        { "id": "hospitalization", "label": "Psychiatric Hospitalization", "value": "hospitalization" },
+        { "id": "other", "label": "Other", "value": "other" }
+      ]
+    },
+    {
+      "id": "mh-treatment-outcome",
+      "text": "How helpful was the previous treatment?",
+      "answerType": "scale",
+      "category": "mental-health-history",
+      "isFollowUp": true,
+      "parentQuestionId": "mh-previous-treatment",
+      "scaleConfig": {
+        "min": 0,
+        "max": 10,
+        "minLabel": "Not helpful",
+        "maxLabel": "Very helpful",
+        "step": 1
+      }
+    },
+    {
+      "id": "mh-current-diagnosis",
+      "text": "Do you have any current psychiatric diagnoses?",
+      "answerType": "yes_no",
+      "category": "mental-health-history",
+      "followUpRules": [
+        {
+          "condition": "yes",
+          "followUpIds": ["mh-diagnosis-details"]
+        }
+      ]
+    },
+    {
+      "id": "mh-diagnosis-details",
+      "text": "What are your current diagnoses?",
+      "answerType": "text",
+      "category": "mental-health-history",
+      "isFollowUp": true,
+      "parentQuestionId": "mh-current-diagnosis",
+      "placeholder": "List diagnoses..."
+    },
+    {
+      "id": "family-mh-history",
+      "text": "Is there a history of mental health conditions in your family?",
+      "answerType": "yes_no",
+      "category": "family-history",
+      "followUpRules": [
+        {
+          "condition": "yes",
+          "followUpIds": ["family-mh-details"]
+        }
+      ]
+    },
+    {
+      "id": "family-mh-details",
+      "text": "Please describe the family mental health history:",
+      "answerType": "text",
+      "category": "family-history",
+      "isFollowUp": true,
+      "parentQuestionId": "family-mh-history",
+      "placeholder": "Relation, condition..."
+    },
+    {
+      "id": "social-living",
+      "text": "What is your current living situation?",
+      "answerType": "single_choice",
+      "category": "social-history",
+      "options": [
+        { "id": "alone", "label": "Living alone", "value": "alone" },
+        { "id": "partner", "label": "Living with partner/spouse", "value": "partner" },
+        { "id": "family", "label": "Living with family", "value": "family" },
+        { "id": "roommates", "label": "Living with roommates", "value": "roommates" },
+        { "id": "assisted", "label": "Assisted living facility", "value": "assisted" },
+        { "id": "other", "label": "Other", "value": "other" }
+      ]
+    },
+    {
+      "id": "social-employment",
+      "text": "What is your current employment status?",
+      "answerType": "single_choice",
+      "category": "social-history",
+      "options": [
+        { "id": "employed-ft", "label": "Employed full-time", "value": "employed-ft" },
+        { "id": "employed-pt", "label": "Employed part-time", "value": "employed-pt" },
+        { "id": "self-employed", "label": "Self-employed", "value": "self-employed" },
+        { "id": "unemployed", "label": "Unemployed", "value": "unemployed" },
+        { "id": "student", "label": "Student", "value": "student" },
+        { "id": "retired", "label": "Retired", "value": "retired" },
+        { "id": "disabled", "label": "On disability", "value": "disabled" }
+      ]
+    },
+    {
+      "id": "social-support",
+      "text": "Do you have a support system (friends, family, community)?",
+      "answerType": "scale",
+      "category": "social-history",
+      "scaleConfig": {
+        "min": 0,
+        "max": 10,
+        "minLabel": "No support",
+        "maxLabel": "Strong support",
+        "step": 1
+      }
+    },
+    {
+      "id": "substance-alcohol",
+      "text": "Do you consume alcohol?",
+      "answerType": "single_choice",
+      "category": "substance-use",
+      "options": [
+        { "id": "never", "label": "Never", "value": "never" },
+        { "id": "rarely", "label": "Rarely (few times a year)", "value": "rarely" },
+        { "id": "occasionally", "label": "Occasionally (1-2 times/month)", "value": "occasionally" },
+        { "id": "weekly", "label": "Weekly", "value": "weekly" },
+        { "id": "daily", "label": "Daily", "value": "daily" }
+      ],
+      "followUpRules": [
+        {
+          "condition": "weekly",
+          "followUpIds": ["substance-alcohol-amount"]
+        },
+        {
+          "condition": "daily",
+          "followUpIds": ["substance-alcohol-amount", "substance-alcohol-concerns"]
+        }
+      ]
+    },
+    {
+      "id": "substance-alcohol-amount",
+      "text": "On average, how many drinks per occasion?",
+      "answerType": "number",
+      "category": "substance-use",
+      "isFollowUp": true,
+      "parentQuestionId": "substance-alcohol"
+    },
+    {
+      "id": "substance-alcohol-concerns",
+      "text": "Have you or others expressed concern about your alcohol use?",
+      "answerType": "yes_no",
+      "category": "substance-use",
+      "isFollowUp": true,
+      "parentQuestionId": "substance-alcohol"
+    },
+    {
+      "id": "substance-tobacco",
+      "text": "Do you use tobacco products?",
+      "answerType": "yes_no",
+      "category": "substance-use"
+    },
+    {
+      "id": "substance-other",
+      "text": "Do you use any other substances (recreational drugs, cannabis, etc.)?",
+      "answerType": "yes_no",
+      "category": "substance-use",
+      "followUpRules": [
+        {
+          "condition": "yes",
+          "followUpIds": ["substance-other-details"]
+        }
+      ]
+    },
+    {
+      "id": "substance-other-details",
+      "text": "Please describe substance use:",
+      "answerType": "text",
+      "category": "substance-use",
+      "isFollowUp": true,
+      "parentQuestionId": "substance-other",
+      "placeholder": "Type, frequency, amount..."
+    },
+    {
+      "id": "risk-self-harm",
+      "text": "Have you had thoughts of harming yourself?",
+      "answerType": "yes_no",
+      "category": "risk-assessment",
+      "required": true,
+      "followUpRules": [
+        {
+          "condition": "yes",
+          "followUpIds": ["risk-self-harm-frequency", "risk-self-harm-plan"]
+        }
+      ]
+    },
+    {
+      "id": "risk-self-harm-frequency",
+      "text": "How often do you have these thoughts?",
+      "answerType": "single_choice",
+      "category": "risk-assessment",
+      "isFollowUp": true,
+      "parentQuestionId": "risk-self-harm",
+      "options": [
+        { "id": "rarely", "label": "Rarely", "value": "rarely" },
+        { "id": "sometimes", "label": "Sometimes", "value": "sometimes" },
+        { "id": "often", "label": "Often", "value": "often" },
+        { "id": "constantly", "label": "Constantly", "value": "constantly" }
+      ]
+    },
+    {
+      "id": "risk-self-harm-plan",
+      "text": "Do you have a plan to harm yourself?",
+      "answerType": "yes_no",
+      "category": "risk-assessment",
+      "isFollowUp": true,
+      "parentQuestionId": "risk-self-harm",
+      "required": true
+    },
+    {
+      "id": "risk-harm-others",
+      "text": "Have you had thoughts of harming others?",
+      "answerType": "yes_no",
+      "category": "risk-assessment",
+      "required": true
+    },
+    {
+      "id": "risk-safety",
+      "text": "Do you feel safe in your current living situation?",
+      "answerType": "yes_no",
+      "category": "risk-assessment",
+      "followUpRules": [
+        {
+          "condition": "no",
+          "followUpIds": ["risk-safety-details"]
+        }
+      ]
+    },
+    {
+      "id": "risk-safety-details",
+      "text": "Please describe your safety concerns:",
+      "answerType": "text",
+      "category": "risk-assessment",
+      "isFollowUp": true,
+      "parentQuestionId": "risk-safety",
+      "placeholder": "Describe concerns..."
+    }
+  ]
+}

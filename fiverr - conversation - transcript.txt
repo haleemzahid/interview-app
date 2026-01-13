@@ -1,0 +1,634 @@
+
+Me
+
+Jan 13, 11:20 AM
+You responded to Windows Interview App Development
+
+I’m a Windows desktop developer with experience building stable, production-ready applications that rely on true conditional logic (rule-based flows and state machines, not simple show/hide UI tricks). I can deliver a desktop-only interview app with editable questions, real-time updates, autosave/crash recovery, session keys, JSON import, and PDF export, all with a clean, minimal UI inspired by GitHub. I focus heavily on robustness, performance, and maintainable design to ensure reliability during live interviews.
+
+I’d be glad to discuss your logic model and deliver this within your scope, budget, and timeline.
+
+Show Less
+
+More details needed
+
+Just ping me if you want your project on 18 jan.
+Just need your 5 minute to discuss it
+
+D
+Profile Image
+David Beck
+
+Jan 13, 11:55 AM
+Okay.
+
+D
+Profile Image
+David Beck
+
+Jan 13, 11:57 AM
+I dont have any much clue bout coding but made half of the app myself. I can send you what i already did....
+
+So what would be the price based on this informations?
+
+H
+Profile Image
+Me
+
+Jan 13, 12:03 PM
+I will charge you 200$ - 
+Please send me what you have
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:04 PM
+I Want to impport my questionairre via json 
+
+I want to change designs and questions, Questions should be structured. It should look very designed. I already did a lot as i said
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:05 PM
+Since i Think there had been done so much work in upfront, 200 is max.
+
+How can i send you all the data?
+
+H
+Profile Image
+Me
+
+Jan 13, 12:06 PM
+Send it here
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:06 PM
+ok
+
+H
+Profile Image
+Me
+
+Jan 13, 12:06 PM
+Just zip your code and send it here
+
+H
+Profile Image
+Me
+
+Jan 13, 12:06 PM
+what language you have developed?
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:06 PM
+Python
+
+H
+Profile Image
+Me
+
+Jan 13, 12:07 PM
+I can create it cross plateform so you can run it in windows and mac
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:07 PM
+It's lacking graphic beuatynesss.....maybe you find some UI from Github or somewhere else because it's looking shitty
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:08 PM
+very nice. That would be cool.
+
+H
+Profile Image
+Me
+
+Jan 13, 12:08 PM
+sure - Send me one json file as well
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:09 PM
+Json FIle is in configs
+
+Anamnese_Interview_zip.zip
+
+(82.8 kB)
+
+H
+Profile Image
+Me
+
+Jan 13, 12:09 PM
+ok thanks let me check it
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:11 PM
+thank you!
+
+So
+
+Importaant stuff as i Said
+
+Reliability
+
+Auto save (already done)
+
+Design approach
+
+Responsiveness
+
+
+Design adjustables
+
+Dont much more to do but i'm losing passion right now since i always get the same mistakees
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:12 PM
+PDF Export in the End.
+
+Patient Data in the Beginning with
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:13 PM
+thats the correct one!
+
+Anamnese_Interview_zip (2).zip
+
+(83.95 kB)
+
+H
+Profile Image
+Me
+
+Jan 13, 12:15 PM
+I will convert the app in cross plateform technology - 
+Electron? 
+is that ok for you?
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:17 PM
+as long as it's running properply....
+
+I use it for interviews with my patients so data loss is a no go....
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:18 PM
+If this works, i'll have some more jobs for you since i'm automatizing a lot of my work these days....
+
+H
+Profile Image
+Me
+
+Jan 13, 12:19 PM
+Definately it can do it - 
+Can we create an offer now?
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:22 PM
+Create the offer - 200 USD, ok?
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:22 PM
+I want unlimited reviews as long as it's working the way i can use it in my daily business!
+
+You know there wont be many reviews....
+
+H
+Profile Image
+Me
+
+Jan 13, 12:25 PM
+I know but I cannot commit to unlimited reviews
+if you want you can share some designs so i can follow this - unlimited reviews does not make sense for me as it can conflict 
+
+I have done 490+ projects on fiverr and I have all happy customer but I dont commit unlimitted
+We will try to give you the best design and satisfy you
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:26 PM
+Understood!! Where can I choose designs? Then inwould pick some and the rest is on you
+
+H
+Profile Image
+Me
+
+Jan 13, 12:27 PM
+you can just share some random pics from google or any other reference app - Rest my team will work on design and will share it with you so you can chose in that designs
+
+H
+Profile Image
+Me
+
+Jan 13, 12:48 PM
+Got it?
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:52 PM
+Hey i wrote everything down....
+
+Hi,
+
+here is a clear description of how I want the interview app to work and how it should look.
+This is important to me, because this is a clinical interview tool, not a simple questionnaire app.
+
+---
+
+1. Core Concept
+
+- Desktop application built with Electron
+- Purpose: structured psychological interviews with full clinician control
+- Target use: adult clinical assessments
+→ professional, calm, reliable – not a consumer or startup app
+
+---
+
+2. Interview Logic (Very Important)
+
+- All main questions are loaded from external JSON
+- Each question can define:
+   - question ID
+   - question text
+   - answer type (yes/no, scale, text, etc.)
+   - optional follow-up rules
+
+Follow-ups
+
+- If a user answers “Yes” (or a defined value):
+   - follow-ups may become available
+   - follow-ups are optional, never forced
+- Follow-ups can be:
+   - free text input
+   - additional structured questions
+   - internal notes (not part of the final report)
+
+Manual Control
+
+- I must always be able to:
+   - add a manual follow-up
+   - add free text notes
+   - skip any follow-up
+- Follow-ups should feel like tools, not mandatory steps
+
+This is a rule-based interview with clinical freedom, not a rigid decision tree.
+
+---
+
+3. UI Structure
+
+Layout
+
+- Left sidebar:
+   - Interview
+   - Tests
+   - Notes
+   - Export / Report
+- Main area:
+   - one question at a time
+   - large readable text
+   - lots of white space
+
+Question View
+
+- Question clearly visible
+- Answer options below
+- Buttons bottom-right:
+   - Back
+   - Next
+- Subtle progress indicator (e.g. “12 / 45”)
+
+Follow-up Area
+
+- Follow-ups appear:
+   - as expandable section
+   - or slide-in panel
+- Manual follow-up button:
+   - “+ Add follow-up / note”
+
+---
+
+4. UX Rules
+
+- Keyboard-friendly:
+   - Enter = next
+   - Tab navigation works cleanly
+- Calm, controlled feeling
+- No popups, no interruptions
+- No forced interactions
+
+---
+
+D
+Profile Image
+David Beck
+
+Jan 13, 12:52 PM
+Editability / Architecture
+
+- Interview content must not be hardcoded
+- Questions and follow-up rules come from JSON
+- Clean separation between:
+   - UI
+   - interview logic
+   - content
+
+«I want to adapt and extend the interview later without changing application code.»
+
+---
+
+6. Technology Preferences
+
+- Electron is fine
+- JavaScript or TypeScript
+- Modern frontend framework (React or Vue preferred)
+- Local-only (no backend required for now)
+
+---
+
+7. Design Guidelines
+
+- Modern, clean, clear lines
+- Light background (white / very light grey)
+- One calm accent color (blue or green)
+- No neon colors
+- No gamification
+- No mobile-app look
+- Minimal icons, used only where helpful
+- More “medical software” than “startup tool”
+
+Explicit No-Gos
+
+- Dark mode as default
+- Fancy animationsd 
+- Overloaded toolbars
+- Hardcoded interview logic
+
+---
+
+8. Design Reference
+
+Visually closer to clinical or medical software, not apps like Notion, Slack, or consumer productivity tools.
+
+---
+
+If something here seems unclear or difficult to implement, please ask before deciding on an implementation.
+
+Thanks.
+
+Best regards
+David
+
+H
+Profile Image
+Me
+
+Jan 13, 12:54 PM
+«I want to adapt and extend the interview later without changing application code.»
+
+Can you please explain this?
+
+D
+Profile Image
+David Beck
+
+Jan 13, 1:04 PM
+I want to add questions etc and genres without coding
+
+D
+Profile Image
+David Beck
+
+Jan 13, 1:04 PM
+From design: it should look modern, clean, tidied up
+
+H
+Profile Image
+Me
+
+Jan 13, 1:07 PM
+Sure
+
+H
+Profile Image
+Me
+
+Jan 13, 1:07 PM
+Can we create an offer now?
+
+D
+Profile Image
+David Beck
+
+Jan 13, 1:08 PM
+Ja sure
+
+H
+Profile Image
+Me
+
+Jan 13, 1:40 PM
+Here's your custom offer
+
+$200
+I will develop a desktop app or web app for you
+here is a clear description of how I want the interview app to work and how it should look.
+This is important to me, because this is a clinical interview tool, not a simple questionnaire app.
+
+---
+
+1. Core Concept
+
+- Desktop application built with Electron
+- Purpose: structured psychological interviews with full clinician control
+- Target use: adult clinical assessments
+→ professional, calm, reliable – not a consumer or startup app
+
+---
+
+2. Interview Logic (Very Important)
+
+- All main questions are loaded from external JSON
+- Each question can define:
+   - question ID
+   - question text
+   - answer type (yes/no, scale, text, etc.)
+   - optional follow-up rules
+
+Follow-ups
+
+- If a user answers “Yes” (or a defined value):
+   - follow-ups may become available
+   - follow-ups are optional, never forced
+- Follow-ups can be:
+   - free text input
+   - additional structured questions
+   - internal notes (not part of the final report)
+
+Manual Control
+
+- I must always be able to:
+   - add a manual follow-up
+   - add free text notes
+   - skip any follow-up
+- Follow-ups should feel like tools, not mandatory steps
+
+This is a rule-based interview with clinical freedom, not a rigid decision tree.
+
+---
+
+3. UI Structure
+
+Layout
+
+- Left sidebar:
+   - Interview
+   - Tests
+   - Notes
+   - Export / Report
+- Main area:
+   - one question at a time
+   - large readable text
+   - lots of white space
+
+Question View
+
+- Question clearly visible
+- Answer options below
+- Buttons bottom-right:
+   - Back
+   
+
+Read more
+Your offer includes
+
+10 Revisions
+
+20 Days Delivery
+
+Include source code
+
+Detailed code comments
+
+Design customization
+
+Responsive design
+
+Revisions
+
+View order
+H
+Profile Image
+Me
+
+Jan 13, 1:40 PM
+I have mentioned 20 days for the reason that we will have some revisions
+
+
+here is a clear description of how I want the interview app to work and how it should look.
+This is important to me, because this is a clinical interview tool, not a simple questionnaire app.
+
+---
+
+1. Core Concept
+
+- Desktop application built with Electron
+- Purpose: structured psychological interviews with full clinician control
+- Target use: adult clinical assessments
+→ professional, calm, reliable – not a consumer or startup app
+
+---
+
+2. Interview Logic (Very Important)
+
+- All main questions are loaded from external JSON
+- Each question can define:
+- question ID
+- question text
+- answer type (yes/no, scale, text, etc.)
+- optional follow-up rules
+
+Follow-ups
+
+- If a user answers “Yes” (or a defined value):
+- follow-ups may become available
+- follow-ups are optional, never forced
+- Follow-ups can be:
+- free text input
+- additional structured questions
+- internal notes (not part of the final report)
+
+Manual Control
+
+- I must always be able to:
+- add a manual follow-up
+- add free text notes
+- skip any follow-up
+- Follow-ups should feel like tools, not mandatory steps
+
+This is a rule-based interview with clinical freedom, not a rigid decision tree.
+
+---
+
+3. UI Structure
+
+Layout
+
+- Left sidebar:
+- Interview
+- Tests
+- Notes
+- Export / Report
+- Main area:
+- one question at a time
+- large readable text
+- lots of white space
+
+Question View
+
+- Question clearly visible
+- Answer options below
+- Buttons bottom-right:
+- Back

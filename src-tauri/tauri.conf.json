@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-starter",
-  "version": "0.1.0",
-  "identifier": "com.shahi.tauri-starter",
+  "productName": "Clinical Interview App",
+  "version": "1.0.0",
+  "identifier": "com.clinical.interview-app",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,13 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-starter",
-        "width": 800,
-        "height": 600
+        "title": "Clinical Interview",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 1024,
+        "minHeight": 680,
+        "center": true,
+        "resizable": true
       }
     ],
     "security": {
