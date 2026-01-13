@@ -1,13 +1,18 @@
 import { createContext, useContext, useEffect, useSyncExternalStore } from 'react'
 import { createActor } from 'xstate'
-import { interviewMachine, type InterviewContext } from './interview-machine'
+import {
+  interviewMachine,
+  getVisibleQuestions,
+  type InterviewContext,
+} from './interview-machine'
 import type {
-  Question,
-  Questionnaire,
+  InterviewConfig,
+  FlattenedQuestion,
   Answer,
   PatientInfo,
   ManualFollowUp,
   InterviewProgress,
+  ActiveFollowUp,
 } from '../types'
 
 // =============================================================================
@@ -16,20 +21,23 @@ import type {
 
 interface InterviewMachineContextValue {
   // Selectors
-  questionnaire: Questionnaire | null
+  config: InterviewConfig | null
+  questions: FlattenedQuestion[]
   session: InterviewContext['session']
-  currentQuestion: Question | null
-  isInFollowUp: boolean
+  currentQuestion: FlattenedQuestion | null
+  activeFollowUp: ActiveFollowUp | null
   progress: InterviewProgress
   isInterviewing: boolean
   isCompleted: boolean
   isPaused: boolean
+  isLastQuestion: boolean
 
   // Actions
-  loadQuestionnaire: (questionnaire: Questionnaire) => void
+  loadConfig: (config: InterviewConfig) => void
   startSession: (patientInfo: PatientInfo) => void
   resumeSession: (session: InterviewContext['session']) => void
   answerQuestion: (answer: Answer) => void
+  answerFollowUp: (answer: Answer) => void
   nextQuestion: () => void
   prevQuestion: () => void
   skipFollowUp: () => void
@@ -79,66 +87,74 @@ export function InterviewMachineProvider({
     return () => clearInterval(interval)
   }, [state])
 
-  // Get current question
-  const getCurrentQuestion = (): Question | null => {
+  // Get visible questions based on current answers
+  const getVisibleQuestionsFromContext = (): FlattenedQuestion[] => {
     const context = state.context
-    if (!context.questionnaire) return null
+    if (!context.session) return context.questions
+    return getVisibleQuestions(context.questions, context.session.answers)
+  }
 
-    if (context.isInFollowUp && context.activeFollowUps.length > 0) {
-      const followUpId = context.activeFollowUps[context.currentFollowUpIndex]
-      return (
-        context.questionnaire.questions.find((q: Question) => q.id === followUpId) || null
-      )
-    }
+  // Get current question
+  const getCurrentQuestion = (): FlattenedQuestion | null => {
+    const context = state.context
+    const visibleQuestions = getVisibleQuestionsFromContext()
+    return visibleQuestions[context.currentQuestionIndex] || null
+  }
 
-    const mainQuestions = context.questionnaire.questions.filter(
-      (q: Question) => !q.isFollowUp
-    )
-    return mainQuestions[context.currentQuestionIndex] || null
+  // Check if on last question
+  const checkIsLastQuestion = (): boolean => {
+    const context = state.context
+    if (!context.session) return false
+    if (context.session.activeFollowUp) return false
+
+    const visibleQuestions = getVisibleQuestionsFromContext()
+    return context.currentQuestionIndex === visibleQuestions.length - 1
   }
 
   // Calculate progress
   const getProgress = (): InterviewProgress => {
     const context = state.context
-    if (!context.questionnaire || !context.session) {
+    if (!context.session) {
       return { current: 0, total: 0, percentage: 0, answeredCount: 0 }
     }
 
-    const mainQuestions = context.questionnaire.questions.filter(
-      (q: Question) => !q.isFollowUp
-    )
-    const total = mainQuestions.length
+    const visibleQuestions = getVisibleQuestionsFromContext()
+    const total = visibleQuestions.length
     const current = context.currentQuestionIndex + 1
-    const answeredCount = Object.keys(context.session.answers).length
+    const answeredCount = Object.keys(context.session.answers).filter((key) =>
+      visibleQuestions.some((q) => q.id === key)
+    ).length
 
     return {
       current,
       total,
-      percentage: Math.round((current / total) * 100),
+      percentage: total > 0 ? Math.round((current / total) * 100) : 0,
       answeredCount,
     }
   }
 
   const value: InterviewMachineContextValue = {
     // Selectors
-    questionnaire: state.context.questionnaire,
+    config: state.context.config,
+    questions: getVisibleQuestionsFromContext(),
     session: state.context.session,
     currentQuestion: getCurrentQuestion(),
-    isInFollowUp: state.context.isInFollowUp,
+    activeFollowUp: state.context.session?.activeFollowUp || null,
     progress: getProgress(),
     isInterviewing: state.matches('interviewing'),
     isCompleted: state.matches('completed'),
     isPaused: state.matches('paused'),
+    isLastQuestion: checkIsLastQuestion(),
 
     // Actions
-    loadQuestionnaire: (questionnaire) =>
-      actor.send({ type: 'LOAD_QUESTIONNAIRE', questionnaire }),
+    loadConfig: (config) => actor.send({ type: 'LOAD_CONFIG', config }),
     startSession: (patientInfo) =>
       actor.send({ type: 'START_SESSION', patientInfo }),
     resumeSession: (session) => {
       if (session) actor.send({ type: 'RESUME_SESSION', session })
     },
     answerQuestion: (answer) => actor.send({ type: 'ANSWER_QUESTION', answer }),
+    answerFollowUp: (answer) => actor.send({ type: 'ANSWER_FOLLOW_UP', answer }),
     nextQuestion: () => actor.send({ type: 'NEXT_QUESTION' }),
     prevQuestion: () => actor.send({ type: 'PREV_QUESTION' }),
     skipFollowUp: () => actor.send({ type: 'SKIP_FOLLOW_UP' }),

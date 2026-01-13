@@ -1,11 +1,12 @@
 import { setup, assign, fromPromise } from 'xstate'
 import type {
   InterviewSession,
-  Question,
-  Questionnaire,
+  InterviewConfig,
+  FlattenedQuestion,
   Answer,
   PatientInfo,
   ManualFollowUp,
+  ActiveFollowUp,
 } from '../types'
 
 // =============================================================================
@@ -13,12 +14,10 @@ import type {
 // =============================================================================
 
 export interface InterviewContext {
-  questionnaire: Questionnaire | null
+  config: InterviewConfig | null
+  questions: FlattenedQuestion[]
   session: InterviewSession | null
   currentQuestionIndex: number
-  activeFollowUps: string[]
-  currentFollowUpIndex: number
-  isInFollowUp: boolean
   error: string | null
 }
 
@@ -27,10 +26,11 @@ export interface InterviewContext {
 // =============================================================================
 
 type InterviewEvent =
-  | { type: 'LOAD_QUESTIONNAIRE'; questionnaire: Questionnaire }
+  | { type: 'LOAD_CONFIG'; config: InterviewConfig }
   | { type: 'START_SESSION'; patientInfo: PatientInfo }
   | { type: 'RESUME_SESSION'; session: InterviewSession }
   | { type: 'ANSWER_QUESTION'; answer: Answer }
+  | { type: 'ANSWER_FOLLOW_UP'; answer: Answer }
   | { type: 'NEXT_QUESTION' }
   | { type: 'PREV_QUESTION' }
   | { type: 'SKIP_FOLLOW_UP' }
@@ -51,63 +51,107 @@ function generateSessionId(): string {
   return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 
-function getMainQuestions(questionnaire: Questionnaire): Question[] {
-  return questionnaire.questions.filter((q) => !q.isFollowUp)
+/**
+ * Flatten the interview config into a linear list of questions
+ */
+function flattenConfig(config: InterviewConfig): FlattenedQuestion[] {
+  const questions: FlattenedQuestion[] = []
+
+  config.kategorien.forEach((kategorie, kategorieIndex) => {
+    kategorie.fragen.forEach((frage) => {
+      questions.push({
+        ...frage,
+        kategorie: kategorie.titel,
+        kategorieIndex,
+      })
+    })
+  })
+
+  return questions
 }
 
-function evaluateFollowUpCondition(
-  condition: string,
-  answer: Answer['value']
+/**
+ * Evaluate if a bedingung (condition) is met based on current answers
+ * Format: "{questionId} = 'value'" or "{questionId} = 'value1' OR 'value2'"
+ */
+function evaluateBedingung(
+  bedingung: string,
+  answers: Record<string, Answer>
 ): boolean {
-  const answerStr = String(answer).toLowerCase()
-  const conditionLower = condition.toLowerCase()
+  // Parse the condition: "{sym_konzentration} = 'Ja'"
+  const match = bedingung.match(/\{(\w+)\}\s*=\s*'([^']+)'/)
+  if (!match) return true // If can't parse, show the question
 
-  // Yes/No condition
-  if (conditionLower === 'yes' || conditionLower === 'no') {
-    return answerStr === conditionLower || answer === (conditionLower === 'yes')
-  }
+  const [, questionId, expectedValue] = match
+  const answer = answers[questionId]
 
-  // Numeric comparison
-  if (conditionLower.startsWith('>')) {
-    const threshold = parseFloat(conditionLower.slice(1))
-    return typeof answer === 'number' && answer > threshold
-  }
-  if (conditionLower.startsWith('<')) {
-    const threshold = parseFloat(conditionLower.slice(1))
-    return typeof answer === 'number' && answer < threshold
-  }
-  if (conditionLower.startsWith('>=')) {
-    const threshold = parseFloat(conditionLower.slice(2))
-    return typeof answer === 'number' && answer >= threshold
-  }
-  if (conditionLower.startsWith('<=')) {
-    const threshold = parseFloat(conditionLower.slice(2))
-    return typeof answer === 'number' && answer <= threshold
+  if (!answer) return false
+
+  // Handle array answers (checkboxes)
+  if (Array.isArray(answer.value)) {
+    return answer.value.includes(expectedValue)
   }
 
-  // Contains condition
-  if (conditionLower.startsWith('contains:')) {
-    const searchTerm = conditionLower.slice(9)
-    return answerStr.includes(searchTerm)
+  // Handle boolean (ja_nein)
+  if (typeof answer.value === 'boolean') {
+    return (
+      (answer.value && expectedValue === 'Ja') ||
+      (!answer.value && expectedValue === 'Nein')
+    )
   }
 
-  // Exact match
-  return answerStr === conditionLower
+  // String comparison
+  return String(answer.value) === expectedValue
 }
 
-function getTriggeredFollowUps(
-  question: Question,
-  answer: Answer['value']
-): string[] {
-  if (!question.followUpRules) return []
+/**
+ * Check if a follow-up should be triggered based on the answer
+ */
+function checkFollowUpTrigger(
+  followup: Record<string, string> | undefined,
+  answerValue: Answer['value']
+): { triggerValue: string; text: string } | null {
+  if (!followup) return null
 
-  const triggeredIds: string[] = []
-  for (const rule of question.followUpRules) {
-    if (evaluateFollowUpCondition(rule.condition, answer)) {
-      triggeredIds.push(...rule.followUpIds)
+  // Handle boolean answers
+  if (typeof answerValue === 'boolean') {
+    const key = answerValue ? 'Ja' : 'Nein'
+    if (followup[key]) {
+      return { triggerValue: key, text: followup[key] }
     }
+    return null
   }
-  return triggeredIds
+
+  // Handle array answers (checkboxes) - check if any selected option has a follow-up
+  if (Array.isArray(answerValue)) {
+    for (const val of answerValue) {
+      if (followup[val]) {
+        return { triggerValue: val, text: followup[val] }
+      }
+    }
+    return null
+  }
+
+  // Handle string answers (dropdown)
+  const strValue = String(answerValue)
+  if (followup[strValue]) {
+    return { triggerValue: strValue, text: followup[strValue] }
+  }
+
+  return null
+}
+
+/**
+ * Get visible questions (respecting bedingung conditions)
+ */
+function getVisibleQuestions(
+  questions: FlattenedQuestion[],
+  answers: Record<string, Answer>
+): FlattenedQuestion[] {
+  return questions.filter((q) => {
+    if (!q.bedingung) return true
+    return evaluateBedingung(q.bedingung, answers)
+  })
 }
 
 // =============================================================================
@@ -141,68 +185,69 @@ export const interviewMachine = setup({
   },
   guards: {
     hasNextQuestion: ({ context }) => {
-      if (!context.questionnaire || !context.session) return false
+      if (!context.session) return false
 
-      // If in follow-up mode, check if more follow-ups
-      if (context.isInFollowUp) {
-        return context.currentFollowUpIndex < context.activeFollowUps.length - 1
-      }
+      // If in follow-up mode, always can proceed (will exit follow-up)
+      if (context.session.activeFollowUp) return true
 
-      // Check if more main questions
-      const mainQuestions = getMainQuestions(context.questionnaire)
-      return context.currentQuestionIndex < mainQuestions.length - 1
+      const visibleQuestions = getVisibleQuestions(
+        context.questions,
+        context.session.answers
+      )
+      return context.currentQuestionIndex < visibleQuestions.length - 1
     },
     hasPrevQuestion: ({ context }) => {
-      // If in follow-up mode, can go back to parent or previous follow-up
-      if (context.isInFollowUp) {
-        return true
-      }
+      // If in follow-up mode, can go back to parent
+      if (context.session?.activeFollowUp) return true
       return context.currentQuestionIndex > 0
     },
-    hasActiveFollowUps: ({ context }) => {
-      return context.activeFollowUps.length > 0
-    },
     isLastQuestion: ({ context }) => {
-      if (!context.questionnaire) return false
-      const mainQuestions = getMainQuestions(context.questionnaire)
-      return (
-        context.currentQuestionIndex === mainQuestions.length - 1 &&
-        !context.isInFollowUp
+      if (!context.session) return false
+
+      // Not last if in follow-up
+      if (context.session.activeFollowUp) return false
+
+      const visibleQuestions = getVisibleQuestions(
+        context.questions,
+        context.session.answers
       )
+      return context.currentQuestionIndex === visibleQuestions.length - 1
+    },
+    isInFollowUp: ({ context }) => {
+      return context.session?.activeFollowUp !== null
     },
   },
   actions: {
-    loadQuestionnaire: assign({
-      questionnaire: ({ event }) => {
-        if (event.type !== 'LOAD_QUESTIONNAIRE') return null
-        return event.questionnaire
+    loadConfig: assign({
+      config: ({ event }) => {
+        if (event.type !== 'LOAD_CONFIG') return null
+        return event.config
+      },
+      questions: ({ event }) => {
+        if (event.type !== 'LOAD_CONFIG') return []
+        return flattenConfig(event.config)
       },
       error: null,
     }),
 
     createSession: assign({
-      session: ({ context, event }) => {
-        if (event.type !== 'START_SESSION' || !context.questionnaire)
-          return null
+      session: ({ event }) => {
+        if (event.type !== 'START_SESSION') return null
         const now = new Date().toISOString()
         return {
           id: generateSessionId(),
-          questionnaireId: context.questionnaire.id,
-          questionnaireName: context.questionnaire.name,
           patientInfo: event.patientInfo,
           answers: {},
           manualFollowUps: [],
           notes: '',
           currentQuestionIndex: 0,
+          activeFollowUp: null,
           status: 'in_progress' as const,
           startedAt: now,
           updatedAt: now,
         }
       },
       currentQuestionIndex: 0,
-      activeFollowUps: [],
-      currentFollowUpIndex: 0,
-      isInFollowUp: false,
     }),
 
     resumeSession: assign({
@@ -219,98 +264,78 @@ export const interviewMachine = setup({
     recordAnswer: assign({
       session: ({ context, event }) => {
         if (event.type !== 'ANSWER_QUESTION' || !context.session) return null
+
+        const visibleQuestions = getVisibleQuestions(
+          context.questions,
+          context.session.answers
+        )
+        const currentQuestion = visibleQuestions[context.currentQuestionIndex]
+
+        // Check if this answer triggers a follow-up
+        const followUpTrigger = currentQuestion
+          ? checkFollowUpTrigger(currentQuestion.followup, event.answer.value)
+          : null
+
+        let activeFollowUp: ActiveFollowUp | null = null
+        if (followUpTrigger) {
+          activeFollowUp = {
+            parentQuestionId: currentQuestion.id,
+            triggerValue: followUpTrigger.triggerValue,
+            followUpText: followUpTrigger.text,
+            followUpId: `${currentQuestion.id}_followup_${followUpTrigger.triggerValue}`,
+          }
+        }
+
         return {
           ...context.session,
           answers: {
             ...context.session.answers,
             [event.answer.questionId]: event.answer,
           },
+          activeFollowUp,
           updatedAt: new Date().toISOString(),
         }
       },
     }),
 
-    checkFollowUps: assign({
-      activeFollowUps: ({ context, event }) => {
-        if (event.type !== 'ANSWER_QUESTION' || !context.questionnaire)
-          return []
+    recordFollowUpAnswer: assign({
+      session: ({ context, event }) => {
+        if (event.type !== 'ANSWER_FOLLOW_UP' || !context.session) return null
 
-        const mainQuestions = getMainQuestions(context.questionnaire)
-        const currentQuestion = context.isInFollowUp
-          ? context.questionnaire.questions.find(
-              (q) => q.id === context.activeFollowUps[context.currentFollowUpIndex]
-            )
-          : mainQuestions[context.currentQuestionIndex]
-
-        if (!currentQuestion) return []
-
-        return getTriggeredFollowUps(currentQuestion, event.answer.value)
-      },
-      currentFollowUpIndex: 0,
-      isInFollowUp: ({ context, event }) => {
-        if (event.type !== 'ANSWER_QUESTION' || !context.questionnaire)
-          return false
-
-        const mainQuestions = getMainQuestions(context.questionnaire)
-        const currentQuestion = mainQuestions[context.currentQuestionIndex]
-        if (!currentQuestion) return false
-
-        const followUps = getTriggeredFollowUps(
-          currentQuestion,
-          event.answer.value
-        )
-        return followUps.length > 0
+        return {
+          ...context.session,
+          answers: {
+            ...context.session.answers,
+            [event.answer.questionId]: event.answer,
+          },
+          activeFollowUp: null, // Clear follow-up after answering
+          updatedAt: new Date().toISOString(),
+        }
       },
     }),
 
     goToNextQuestion: assign({
       currentQuestionIndex: ({ context }) => {
-        if (context.isInFollowUp) {
-          // If last follow-up, move to next main question
-          if (
-            context.currentFollowUpIndex >=
-            context.activeFollowUps.length - 1
-          ) {
-            return context.currentQuestionIndex + 1
-          }
+        if (!context.session) return 0
+
+        // If was in follow-up, stay on same question (follow-up cleared by answer)
+        if (context.session.activeFollowUp) {
           return context.currentQuestionIndex
         }
+
         return context.currentQuestionIndex + 1
-      },
-      currentFollowUpIndex: ({ context }) => {
-        if (
-          context.isInFollowUp &&
-          context.currentFollowUpIndex < context.activeFollowUps.length - 1
-        ) {
-          return context.currentFollowUpIndex + 1
-        }
-        return 0
-      },
-      isInFollowUp: ({ context }) => {
-        if (context.isInFollowUp) {
-          return (
-            context.currentFollowUpIndex < context.activeFollowUps.length - 1
-          )
-        }
-        return false
-      },
-      activeFollowUps: ({ context }) => {
-        if (
-          context.isInFollowUp &&
-          context.currentFollowUpIndex >= context.activeFollowUps.length - 1
-        ) {
-          return []
-        }
-        return context.activeFollowUps
       },
       session: ({ context }) => {
         if (!context.session) return null
-        const newIndex = context.isInFollowUp
+
+        const newIndex = context.session.activeFollowUp
           ? context.currentQuestionIndex
           : context.currentQuestionIndex + 1
+
         return {
           ...context.session,
           currentQuestionIndex: newIndex,
+          activeFollowUp: null, // Clear any active follow-up
           updatedAt: new Date().toISOString(),
         }
       },
@@ -318,61 +343,39 @@ export const interviewMachine = setup({
 
     goToPrevQuestion: assign({
       currentQuestionIndex: ({ context }) => {
-        if (context.isInFollowUp && context.currentFollowUpIndex === 0) {
-          // Go back to main question
+        if (!context.session) return 0
+
+        // If in follow-up, stay on same question but clear follow-up
+        if (context.session.activeFollowUp) {
           return context.currentQuestionIndex
         }
-        if (!context.isInFollowUp && context.currentQuestionIndex > 0) {
-          return context.currentQuestionIndex - 1
-        }
-        return context.currentQuestionIndex
-      },
-      currentFollowUpIndex: ({ context }) => {
-        if (context.isInFollowUp && context.currentFollowUpIndex > 0) {
-          return context.currentFollowUpIndex - 1
-        }
-        return 0
-      },
-      isInFollowUp: ({ context }) => {
-        if (context.isInFollowUp && context.currentFollowUpIndex === 0) {
-          return false
-        }
-        return context.isInFollowUp
+
+        return Math.max(0, context.currentQuestionIndex - 1)
       },
       session: ({ context }) => {
         if (!context.session) return null
+
+        const newIndex = context.session.activeFollowUp
+          ? context.currentQuestionIndex
+          : Math.max(0, context.currentQuestionIndex - 1)
+
         return {
           ...context.session,
-          currentQuestionIndex: Math.max(0, context.currentQuestionIndex - 1),
+          currentQuestionIndex: newIndex,
+          activeFollowUp: null,
           updatedAt: new Date().toISOString(),
         }
       },
     }),
 
     skipFollowUp: assign({
-      currentFollowUpIndex: ({ context }) => {
-        if (
-          context.isInFollowUp &&
-          context.currentFollowUpIndex < context.activeFollowUps.length - 1
-        ) {
-          return context.currentFollowUpIndex + 1
+      session: ({ context }) => {
+        if (!context.session) return null
+        return {
+          ...context.session,
+          activeFollowUp: null,
+          updatedAt: new Date().toISOString(),
         }
-        return 0
-      },
-      isInFollowUp: ({ context }) => {
-        return (
-          context.isInFollowUp &&
-          context.currentFollowUpIndex < context.activeFollowUps.length - 1
-        )
-      },
-      activeFollowUps: ({ context }) => {
-        if (
-          context.isInFollowUp &&
-          context.currentFollowUpIndex >= context.activeFollowUps.length - 1
-        ) {
-          return []
-        }
-        return context.activeFollowUps
       },
     }),
 
@@ -427,9 +430,15 @@ export const interviewMachine = setup({
         if (event.type !== 'GO_TO_QUESTION') return 0
         return event.index
       },
-      isInFollowUp: false,
-      activeFollowUps: [],
-      currentFollowUpIndex: 0,
+      session: ({ context, event }) => {
+        if (event.type !== 'GO_TO_QUESTION' || !context.session) return null
+        return {
+          ...context.session,
+          activeFollowUp: null,
+          currentQuestionIndex: event.index,
+          updatedAt: new Date().toISOString(),
+        }
+      },
     }),
 
     setError: assign({
@@ -447,20 +456,18 @@ export const interviewMachine = setup({
   id: 'interview',
   initial: 'idle',
   context: {
-    questionnaire: null,
+    config: null,
+    questions: [],
     session: null,
     currentQuestionIndex: 0,
-    activeFollowUps: [],
-    currentFollowUpIndex: 0,
-    isInFollowUp: false,
     error: null,
   },
   states: {
     idle: {
       on: {
-        LOAD_QUESTIONNAIRE: {
+        LOAD_CONFIG: {
           target: 'loaded',
-          actions: 'loadQuestionnaire',
+          actions: 'loadConfig',
         },
       },
     },
@@ -501,7 +508,10 @@ export const interviewMachine = setup({
         question: {
           on: {
             ANSWER_QUESTION: {
-              actions: ['recordAnswer', 'checkFollowUps'],
+              actions: 'recordAnswer',
+            },
+            ANSWER_FOLLOW_UP: {
+              actions: 'recordFollowUpAnswer',
             },
             NEXT_QUESTION: [
               {
@@ -552,3 +562,6 @@ export const interviewMachine = setup({
 })
 
 export type InterviewMachine = typeof interviewMachine
+
+// Export helper for use in components
+export { getVisibleQuestions }

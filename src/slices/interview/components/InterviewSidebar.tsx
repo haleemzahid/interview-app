@@ -21,25 +21,30 @@ const navItems: Array<{
 }> = [
   { id: 'interview', label: 'Interview', icon: ClipboardList },
   { id: 'tests', label: 'Tests', icon: FileText },
-  { id: 'notes', label: 'Notes', icon: StickyNote },
-  { id: 'export', label: 'Export / Report', icon: FileDown },
+  { id: 'notes', label: 'Notizen', icon: StickyNote },
+  { id: 'export', label: 'Export / Bericht', icon: FileDown },
 ]
 
 export function InterviewSidebar({
   activeTab,
   onTabChange,
 }: InterviewSidebarProps) {
-  const { session, progress, questionnaire } = useInterviewMachine()
+  const { session, progress, config } = useInterviewMachine()
+
+  // Get total number of categories for display
+  const categoryCount = config?.kategorien.length ?? 0
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-gray-200 bg-gray-50">
       {/* Header */}
       <div className="border-b border-gray-200 p-4">
         <h1 className="text-lg font-semibold text-gray-800">
-          Clinical Interview
+          Klinisches Interview
         </h1>
-        {questionnaire && (
-          <p className="mt-1 text-sm text-gray-500">{questionnaire.name}</p>
+        {config && (
+          <p className="mt-1 text-sm text-gray-500">
+            {categoryCount} Kategorien
+          </p>
         )}
       </div>
 
@@ -54,7 +59,7 @@ export function InterviewSidebar({
           </p>
           {session.patientInfo.dateOfBirth && (
             <p className="text-sm text-gray-500">
-              DOB: {session.patientInfo.dateOfBirth}
+              Geb.: {session.patientInfo.dateOfBirth}
             </p>
           )}
         </div>
@@ -64,7 +69,7 @@ export function InterviewSidebar({
       {session && (
         <div className="border-b border-gray-200 p-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">Progress</span>
+            <span className="text-gray-500">Fortschritt</span>
             <span className="font-medium text-gray-700">
               {progress.current} / {progress.total}
             </span>
@@ -76,7 +81,7 @@ export function InterviewSidebar({
             />
           </div>
           <p className="mt-1 text-xs text-gray-400">
-            {progress.answeredCount} questions answered
+            {progress.answeredCount} Fragen beantwortet
           </p>
         </div>
       )}
@@ -140,15 +145,15 @@ export function InterviewSidebar({
             />
             <span className="text-xs text-gray-500">
               {session.status === 'in_progress'
-                ? 'In Progress'
+                ? 'In Bearbeitung'
                 : session.status === 'paused'
-                  ? 'Paused'
-                  : 'Completed'}
+                  ? 'Pausiert'
+                  : 'Abgeschlossen'}
             </span>
           </div>
           <p className="mt-1 text-xs text-gray-400">
-            Last saved:{' '}
-            {new Date(session.updatedAt).toLocaleTimeString([], {
+            Zuletzt gespeichert:{' '}
+            {new Date(session.updatedAt).toLocaleTimeString('de-DE', {
               hour: '2-digit',
               minute: '2-digit',
             })}

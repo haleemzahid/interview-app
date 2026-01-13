@@ -1,0 +1,347 @@
+{
+  "kategorien": [
+    {
+      "titel": "1. ANLASS DER TESTUNG",
+      "fragen": [
+        {
+          "id": "anlass_ausloeser",
+          "typ": "ja_nein",
+          "text": "Gab es konkrete Auslöser oder aktuelle Situationen, die zur Testung geführt haben?",
+          "followup": {
+            "Ja": "Welche Auslöser waren das?"
+          }
+        },
+        {
+          "id": "anlass_bewegt",
+          "typ": "checkboxen",
+          "text": "Was hat Sie zu dieser Testung bewegt?",
+          "optionen": [
+            "Gespräche mit Freunden/Familie",
+            "Social-Media/Internet",
+            "ADHS-Diagnose im Umfeld",
+            "Empfehlung vom Arzt",
+            "Sonstiges"
+          ],
+          "followup": {
+            "Sonstiges": "Bitte erläutern Sie"
+          }
+        },
+        {
+          "id": "anlass_erwartung",
+          "text": "Was erhoffen Sie sich von der Testung?",
+          "typ": "checkboxen",
+          "optionen": [
+            "Klarheit",
+            "Medikamentöse Untersstützung",
+            "Psychotherapie"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "2. SYMPTOMATIK",
+      "fragen": [
+        {
+          "id": "sym_konzentration",
+          "typ": "ja_nein",
+          "text": "Haben Sie Schwierigkeiten, sich zu konzentrieren?"
+        },
+        {
+          "id": "sym_konzentration_detail",
+          "typ": "textarea",
+          "text": "In welchen Situationen fällt Ihnen die Konzentration besonders schwer?",
+          "bedingung": "{sym_konzentration} = 'Ja'"
+        },
+        {
+          "id": "sym_gedanken",
+          "typ": "ja_nein",
+          "text": "Schweifen Ihre Gedanken häufig ab?"
+        },
+        {
+          "id": "sym_ablenkbar",
+          "typ": "ja_nein",
+          "text": "Lassen Sie sich leicht ablenken?"
+        },
+        {
+          "id": "sym_unruhe",
+          "typ": "ja_nein",
+          "text": "Verspüren Sie häufig innere Unruhe?"
+        },
+        {
+          "id": "sym_impulsivitaet",
+          "typ": "ja_nein",
+          "text": "Handeln Sie häufig impulsiv?"
+        }
+      ]
+    },
+    {
+      "titel": "3. KINDHEIT / JUGEND",
+      "fragen": [
+        {
+          "id": "kind_schwierigkeiten",
+          "typ": "ja_nein",
+          "text": "Gab es ähnliche Schwierigkeiten bereits in der Kindheit?"
+        },
+        {
+          "id": "kind_details",
+          "typ": "textarea",
+          "text": "Bitte beschreiben Sie die Schwierigkeiten in der Kindheit:",
+          "bedingung": "{kind_schwierigkeiten} = 'Ja'"
+        },
+        {
+          "id": "kind_schule",
+          "typ": "dropdown",
+          "text": "Wie war Ihr Verhalten in der Schule?",
+          "optionen": [
+            "Ruhig und angepasst",
+            "Unruhig/Zappelig",
+            "Verträumt",
+            "Störend",
+            "Wechselhaft"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "4. LEBENSBEREICHE",
+      "fragen": [
+        {
+          "id": "leben_beeintraechtigt",
+          "typ": "checkboxen",
+          "text": "In welchen Lebensbereichen beeinträchtigen die Schwierigkeiten Sie aktuell?",
+          "optionen": [
+            "Alltag/Haushalt",
+            "Familie",
+            "Beruf/Ausbildung",
+            "Partnerschaft",
+            "Freundschaften",
+            "Hobbys"
+          ]
+        },
+        {
+          "id": "leben_beruf",
+          "typ": "textarea",
+          "text": "Wie äußern sich die Schwierigkeiten im Beruf/Ausbildung?",
+          "bedingung": "{leben_beeintraechtigt} = 'Beruf/Ausbildung'"
+        }
+      ]
+    },
+    {
+      "titel": "5. BEWÄLTIGUNGSSTRATEGIEN",
+      "fragen": [
+        {
+          "id": "bew_strategien",
+          "typ": "checkboxen",
+          "text": "Welche Strategien nutzen Sie, um mit den Schwierigkeiten umzugehen?",
+          "optionen": [
+            "To-Do-Listen",
+            "Kalender/Planer",
+            "Zeitmanagement-Apps",
+            "Routinen",
+            "Erinnerungen/Wecker",
+            "Keine"
+          ]
+        },
+        {
+          "id": "bew_hilfreich",
+          "typ": "dropdown",
+          "text": "Wie hilfreich sind diese Strategien?",
+          "optionen": [
+            "Sehr hilfreich",
+            "Etwas hilfreich",
+            "Kaum hilfreich",
+            "Nicht hilfreich"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "6. PSYCHIATRISCHE ANAMNESE",
+      "fragen": [
+        {
+          "id": "psych_behandlung",
+          "typ": "dropdown",
+          "text": "Waren oder sind Sie in psychiatrischer/psychotherapeutischer Behandlung?",
+          "optionen": [
+            "Nein, nie",
+            "Ja, aktuell",
+            "Ja, früher"
+          ],
+          "followup": {
+            "Ja, aktuell": "Welche Behandlung erhalten Sie aktuell?",
+            "Ja, früher": "Welche Behandlung hatten Sie früher?"
+          }
+        },
+        {
+          "id": "psych_diagnosen",
+          "typ": "textarea",
+          "text": "Wurden bereits andere psychiatrische Diagnosen gestellt?"
+        },
+        {
+          "id": "psych_medikamente",
+          "typ": "ja_nein",
+          "text": "Nehmen Sie aktuell Medikamente?",
+          "followup": {
+            "Ja": "Welche Medikamente nehmen Sie?"
+          }
+        }
+      ]
+    },
+    {
+      "titel": "7. SUCHTANAMNESE",
+      "fragen": [
+        {
+          "id": "sucht_rauchen",
+          "typ": "dropdown",
+          "text": "Rauchen Sie?",
+          "optionen": [
+            "Nein, nie",
+            "Nein, aufgehört",
+            "Ja, gelegentlich",
+            "Ja, regelmäßig"
+          ]
+        },
+        {
+          "id": "sucht_alkohol",
+          "typ": "dropdown",
+          "text": "Wie häufig konsumieren Sie Alkohol?",
+          "optionen": [
+            "Nie",
+            "Selten (1-2x pro Monat)",
+            "Gelegentlich (1x pro Woche)",
+            "Häufig (mehrmals pro Woche)",
+            "Täglich"
+          ]
+        },
+        {
+          "id": "sucht_drogen",
+          "typ": "ja_nein",
+          "text": "Haben Sie Erfahrung mit illegalen Drogen?",
+          "followup": {
+            "Ja": "Welche Substanzen?"
+          }
+        }
+      ]
+    },
+    {
+      "titel": "8. FAMILIENANAMNESE",
+      "fragen": [
+        {
+          "id": "fam_adhs",
+          "typ": "ja_nein",
+          "text": "Sind ADHS-Diagnosen in der Familie bekannt?",
+          "followup": {
+            "Ja": "Bei welchen Familienmitgliedern?"
+          }
+        },
+        {
+          "id": "fam_psych",
+          "typ": "ja_nein",
+          "text": "Gibt es andere psychiatrische Erkrankungen in der Familie?",
+          "followup": {
+            "Ja": "Welche Erkrankungen?"
+          }
+        }
+      ]
+    },
+    {
+      "titel": "9. SCHULANAMNESE",
+      "fragen": [
+        {
+          "id": "schule_erleben",
+          "typ": "dropdown",
+          "text": "Wie haben Sie Ihre Schulzeit insgesamt erlebt?",
+          "optionen": [
+            "Sehr positiv",
+            "Positiv",
+            "Gemischt",
+            "Negativ",
+            "Sehr negativ"
+          ]
+        },
+        {
+          "id": "schule_leistung",
+          "typ": "dropdown",
+          "text": "Wie waren Ihre schulischen Leistungen?",
+          "optionen": [
+            "Sehr gut",
+            "Gut",
+            "Befriedigend",
+            "Ausreichend",
+            "Mangelhaft"
+          ]
+        },
+        {
+          "id": "schule_probleme",
+          "typ": "textarea",
+          "text": "Gab es besondere Schwierigkeiten in der Schule?"
+        }
+      ]
+    },
+    {
+      "titel": "10. PSYCHOPATHOLOGISCHER BEFUND",
+      "fragen": [
+        {
+          "id": "pp_stimmung",
+          "typ": "dropdown",
+          "text": "Wie würden Sie Ihre aktuelle Stimmung beschreiben?",
+          "optionen": [
+            "Ausgeglichen",
+            "Eher gedrückt",
+            "Wechselhaft",
+            "Angespannt",
+            "Gereizt"
+          ]
+        },
+        {
+          "id": "pp_schlaf",
+          "typ": "dropdown",
+          "text": "Wie schlafen Sie?",
+          "optionen": [
+            "Sehr gut",
+            "Gut",
+            "Problematisch",
+            "Sehr schlecht"
+          ]
+        },
+        {
+          "id": "pp_antrieb",
+          "typ": "dropdown",
+          "text": "Wie ist Ihr Antrieb?",
+          "optionen": [
+            "Normal",
+            "Erhöht",
+            "Vermindert",
+            "Wechselhaft"
+          ]
+        }
+      ]
+    },
+    {
+      "titel": "11. SOMATISCHE ASPEKTE",
+      "fragen": [
+        {
+          "id": "som_vorerkrankungen",
+          "typ": "ja_nein",
+          "text": "Haben Sie internistische Vorerkrankungen?",
+          "followup": {
+            "Ja": "Welche Erkrankungen?"
+          }
+        },
+        {
+          "id": "som_neurologisch",
+          "typ": "ja_nein",
+          "text": "Sind neurologische Erkrankungen bekannt?",
+          "followup": {
+            "Ja": "Welche Erkrankungen?"
+          }
+        },
+        {
+          "id": "som_medikamente",
+          "typ": "textarea",
+          "text": "Welche Medikamente nehmen Sie regelmäßig ein?"
+        }
+      ]
+    }
+  ]
+}

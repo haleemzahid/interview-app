@@ -9,13 +9,15 @@ export {
 
 // Types
 export type {
-  Question,
-  Questionnaire,
-  QuestionnaireCategory,
+  InterviewConfig,
+  Kategorie,
+  Frage,
+  FrageTyp,
+  FlattenedQuestion,
   PatientInfo,
   Answer,
   InterviewSession,
   ManualFollowUp,
   NavigationTab,
-  AnswerType,
+  ActiveFollowUp,
 } from './types'

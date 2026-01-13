@@ -4,87 +4,93 @@
  * This file defines the core data structures for the clinical interview application.
  * All interview content is loaded from external JSON files to allow customization
  * without code changes.
+ *
+ * JSON format uses German field names as per client specification.
  */
 
 // =============================================================================
-// Question Types
+// Question Types (Client's JSON Format - German)
 // =============================================================================
 
-export type AnswerType =
-  | 'yes_no'
-  | 'scale'
-  | 'text'
-  | 'multi_choice'
-  | 'single_choice'
-  | 'date'
-  | 'number'
+/**
+ * Question types in client's format:
+ * - ja_nein: Yes/No question
+ * - checkboxen: Multiple choice (checkboxes)
+ * - dropdown: Single choice dropdown
+ * - textarea: Free text input
+ */
+export type FrageTyp = 'ja_nein' | 'checkboxen' | 'dropdown' | 'textarea'
 
-export interface ScaleConfig {
-  min: number
-  max: number
-  minLabel?: string
-  maxLabel?: string
-  step?: number
-}
+/**
+ * Follow-up mapping: answer value -> follow-up question text
+ * e.g., { "Ja": "Welche Auslöser waren das?" }
+ */
+export type FollowUpMap = Record<string, string>
 
-export interface ChoiceOption {
-  id: string
-  label: string
-  value: string
-}
-
-export interface FollowUpRule {
-  /** Condition to trigger follow-up (e.g., "yes", ">5", "contains:severe") */
-  condition: string
-  /** IDs of follow-up questions to show */
-  followUpIds: string[]
-}
-
-export interface Question {
+/**
+ * Question structure in client's JSON format
+ */
+export interface Frage {
   id: string
   text: string
-  answerType: AnswerType
-  /** Category/section this question belongs to */
-  category?: string
-  /** Whether this question is required */
-  required?: boolean
-  /** Placeholder text for text inputs */
-  placeholder?: string
-  /** Help text shown below the question */
-  helpText?: string
-  /** Options for choice-based questions */
-  options?: ChoiceOption[]
-  /** Configuration for scale questions */
-  scaleConfig?: ScaleConfig
-  /** Rules for conditional follow-ups */
-  followUpRules?: FollowUpRule[]
-  /** Whether this is a follow-up question (not shown in main flow) */
+  typ: FrageTyp
+  /** Options for checkboxen and dropdown types */
+  optionen?: string[]
+  /** Follow-up questions triggered by specific answers */
+  followup?: FollowUpMap
+  /** Condition for showing this question (e.g., "{sym_konzentration} = 'Ja'") */
+  bedingung?: string
+}
+
+/**
+ * Category structure in client's JSON format
+ */
+export interface Kategorie {
+  titel: string
+  fragen: Frage[]
+}
+
+/**
+ * Root questionnaire structure in client's JSON format
+ */
+export interface InterviewConfig {
+  kategorien: Kategorie[]
+}
+
+// =============================================================================
+// Internal Types (for state management)
+// =============================================================================
+
+/**
+ * Flattened question for internal processing
+ */
+export interface FlattenedQuestion {
+  id: string
+  text: string
+  typ: FrageTyp
+  optionen?: string[]
+  followup?: FollowUpMap
+  bedingung?: string
+  /** Category title this question belongs to */
+  kategorie: string
+  /** Category index for ordering */
+  kategorieIndex: number
+  /** Whether this is a dynamically created follow-up */
   isFollowUp?: boolean
   /** Parent question ID if this is a follow-up */
   parentQuestionId?: string
+  /** The answer that triggered this follow-up */
+  triggerValue?: string
 }
 
-// =============================================================================
-// Interview/Questionnaire Types
-// =============================================================================
-
-export interface QuestionnaireCategory {
-  id: string
-  name: string
-  description?: string
-  order: number
-}
-
-export interface Questionnaire {
-  id: string
-  name: string
-  version: string
-  description?: string
-  author?: string
-  categories: QuestionnaireCategory[]
-  questions: Question[]
-  createdAt?: string
-  updatedAt?: string
+/**
+ * Active follow-up state
+ */
+export interface ActiveFollowUp {
+  parentQuestionId: string
+  triggerValue: string
+  followUpText: string
+  followUpId: string
 }
 
 // =============================================================================
@@ -102,7 +108,7 @@ export interface PatientInfo {
 
 export interface Answer {
   questionId: string
-  value: string | number | boolean | string[]
+  value: string | boolean | string[]
   timestamp: string
   /** Manual notes added by clinician */
   clinicianNotes?: string
@@ -117,13 +123,14 @@ export interface ManualFollowUp {
 
 export interface InterviewSession {
   id: string
-  questionnaireId: string
-  questionnaireName: string
   patientInfo: PatientInfo
   answers: Record<string, Answer>
   manualFollowUps: ManualFollowUp[]
   notes: string
+  /** Current position in the question flow */
   currentQuestionIndex: number
+  /** Active follow-up being answered */
+  activeFollowUp: ActiveFollowUp | null
   status: 'in_progress' | 'completed' | 'paused'
   startedAt: string
   updatedAt: string
@@ -139,12 +146,6 @@ export interface InterviewProgress {
   total: number
   percentage: number
   answeredCount: number
-}
-
-export interface ActiveFollowUp {
-  questionId: string
-  followUpIds: string[]
-  currentIndex: number
 }
 
 export type NavigationTab = 'interview' | 'tests' | 'notes' | 'export'

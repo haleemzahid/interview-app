@@ -6,30 +6,28 @@ import { QuestionView } from './QuestionView'
 import { NotesView } from './NotesView'
 import { ExportView } from './ExportView'
 import { TestsView } from './TestsView'
-import type { NavigationTab, Questionnaire } from '../types'
+import type { NavigationTab, InterviewConfig } from '../types'
 import { Upload, FolderOpen, AlertCircle } from 'lucide-react'
-
-// Import sample questionnaire
-import sampleQuestionnaire from '../data/sample-questionnaire.json'
 
 export function InterviewPage() {
   const {
-    questionnaire,
+    config,
     session,
-    loadQuestionnaire,
+    loadConfig,
     isInterviewing,
+    isCompleted,
     resumeSession,
   } = useInterviewMachine()
   const [activeTab, setActiveTab] = useState<NavigationTab>('interview')
   const [showRecoveryBanner, setShowRecoveryBanner] = useState(false)
   const [recoveredSession, setRecoveredSession] = useState<string | null>(null)
 
-  // Load questionnaire on mount
+  // Auto-switch to export tab when interview is completed
   useEffect(() => {
-    if (!questionnaire) {
-      loadQuestionnaire(sampleQuestionnaire as Questionnaire)
+    if (isCompleted || session?.status === 'completed') {
+      setActiveTab('export')
     }
-  }, [questionnaire, loadQuestionnaire])
+  }, [isCompleted, session?.status])
 
   // Check for recovered sessions
   useEffect(() => {
@@ -68,7 +66,7 @@ export function InterviewPage() {
     setShowRecoveryBanner(false)
   }
 
-  const handleImportQuestionnaire = () => {
+  const handleImportConfig = () => {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.json'
@@ -77,10 +75,16 @@ export function InterviewPage() {
       if (file) {
         try {
           const text = await file.text()
-          const imported = JSON.parse(text) as Questionnaire
-          loadQuestionnaire(imported)
+          const imported = JSON.parse(text) as InterviewConfig
+          // Validate that it has the correct structure
+          if (!imported.kategorien || !Array.isArray(imported.kategorien)) {
+            throw new Error('Invalid config format')
+          }
+          loadConfig(imported)
         } catch (err) {
-          alert('Failed to import questionnaire. Please check the JSON format.')
+          alert(
+            'Fehler beim Importieren. Bitte überprüfen Sie das JSON-Format.'
+          )
         }
       }
     }
@@ -88,33 +92,33 @@ export function InterviewPage() {
   }
 
   const renderContent = () => {
-    // If no session started, show patient form or questionnaire selection
-    if (!isInterviewing && !session) {
-      if (questionnaire) {
-        return <PatientInfoForm />
-      }
-
-      // No questionnaire loaded - show import option
+    // If no config loaded, show import option
+    if (!config) {
       return (
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
             <FolderOpen className="mx-auto h-16 w-16 text-gray-300" />
             <h2 className="mt-6 text-xl font-semibold text-gray-700">
-              No Questionnaire Loaded
+              Kein Fragebogen geladen
             </h2>
             <p className="mt-2 text-gray-500">
-              Import a questionnaire JSON file to get started
+              Importieren Sie eine JSON-Datei, um zu beginnen
             </p>
             <button
-              onClick={handleImportQuestionnaire}
-              className="mt-6 flex items-center gap-2 rounded-lg bg-teal-600 px-6 py-3 font-medium text-white transition-colors hover:bg-teal-700"
+              onClick={handleImportConfig}
+              className="mt-6 flex items-center gap-2 rounded-lg bg-teal-600 px-6 py-3 font-medium text-white transition-colors hover:bg-teal-700 mx-auto"
             >
               <Upload className="h-5 w-5" />
-              Import Questionnaire
+              Fragebogen importieren
             </button>
           </div>
         </div>
       )
+    }
+
+    // If no session started, show patient form
+    if (!isInterviewing && !session) {
+      return <PatientInfoForm />
     }
 
     // Show appropriate view based on active tab
@@ -145,7 +149,8 @@ export function InterviewPage() {
             <div className="flex items-center gap-3">
               <AlertCircle className="h-5 w-5 text-amber-600" />
               <span className="text-sm text-amber-800">
-                A previous session was found. Would you like to recover it?
+                Eine vorherige Sitzung wurde gefunden. Möchten Sie sie
+                wiederherstellen?
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -153,27 +158,27 @@ export function InterviewPage() {
                 onClick={handleDismissRecovery}
                 className="rounded px-3 py-1 text-sm text-amber-700 hover:bg-amber-100"
               >
-                Dismiss
+                Verwerfen
               </button>
               <button
                 onClick={handleRecoverSession}
                 className="rounded bg-amber-600 px-3 py-1 text-sm text-white hover:bg-amber-700"
               >
-                Recover Session
+                Sitzung wiederherstellen
               </button>
             </div>
           </div>
         )}
 
-        {/* Import Questionnaire Button (when session active) */}
-        {!session && questionnaire && (
+        {/* Import Config Button (when session not active but config loaded) */}
+        {!session && config && (
           <div className="flex justify-end border-b border-gray-100 px-4 py-2">
             <button
-              onClick={handleImportQuestionnaire}
+              onClick={handleImportConfig}
               className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
             >
               <Upload className="h-4 w-4" />
-              Import Different Questionnaire
+              Anderen Fragebogen importieren
             </button>
           </div>
         )}
