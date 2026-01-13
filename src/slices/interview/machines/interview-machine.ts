@@ -28,7 +28,7 @@ export interface InterviewContext {
 type InterviewEvent =
   | { type: 'LOAD_CONFIG'; config: InterviewConfig }
   | { type: 'START_SESSION'; patientInfo: PatientInfo }
-  | { type: 'RESUME_SESSION'; session: InterviewSession }
+  | { type: 'RESUME_SESSION'; session: InterviewSession; config: InterviewConfig }
   | { type: 'ANSWER_QUESTION'; answer: Answer }
   | { type: 'ANSWER_FOLLOW_UP'; answer: Answer }
   | { type: 'NEXT_QUESTION' }
@@ -158,12 +158,16 @@ function getVisibleQuestions(
 // Actors
 // =============================================================================
 
-const saveSession = fromPromise<void, { session: InterviewSession }>(
+const saveSession = fromPromise<void, { session: InterviewSession; config: InterviewConfig }>(
   async ({ input }) => {
-    // Save to localStorage for crash recovery
+    // Save both session and config to localStorage for crash recovery
+    const saveData = {
+      session: input.session,
+      config: input.config,
+    }
     localStorage.setItem(
       `interview-session-${input.session.id}`,
-      JSON.stringify(input.session)
+      JSON.stringify(saveData)
     )
     localStorage.setItem('interview-last-session-id', input.session.id)
     // Simulate async save (can be extended to save to database)
@@ -251,6 +255,14 @@ export const interviewMachine = setup({
     }),
 
     resumeSession: assign({
+      config: ({ event }) => {
+        if (event.type !== 'RESUME_SESSION') return null
+        return event.config
+      },
+      questions: ({ event }) => {
+        if (event.type !== 'RESUME_SESSION') return []
+        return flattenConfig(event.config)
+      },
       session: ({ event }) => {
         if (event.type !== 'RESUME_SESSION') return null
         return event.session
@@ -469,6 +481,10 @@ export const interviewMachine = setup({
           target: 'loaded',
           actions: 'loadConfig',
         },
+        RESUME_SESSION: {
+          target: 'interviewing',
+          actions: 'resumeSession',
+        },
       },
     },
     loaded: {
@@ -534,7 +550,7 @@ export const interviewMachine = setup({
         saving: {
           invoke: {
             src: 'saveSession',
-            input: ({ context }) => ({ session: context.session! }),
+            input: ({ context }) => ({ session: context.session!, config: context.config! }),
             onDone: {
               target: 'question',
               actions: 'clearError',

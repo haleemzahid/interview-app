@@ -35,7 +35,7 @@ interface InterviewMachineContextValue {
   // Actions
   loadConfig: (config: InterviewConfig) => void
   startSession: (patientInfo: PatientInfo) => void
-  resumeSession: (session: InterviewContext['session']) => void
+  resumeSession: (session: InterviewContext['session'], config: InterviewConfig) => void
   answerQuestion: (answer: Answer) => void
   answerFollowUp: (answer: Answer) => void
   nextQuestion: () => void
@@ -150,8 +150,8 @@ export function InterviewMachineProvider({
     loadConfig: (config) => actor.send({ type: 'LOAD_CONFIG', config }),
     startSession: (patientInfo) =>
       actor.send({ type: 'START_SESSION', patientInfo }),
-    resumeSession: (session) => {
-      if (session) actor.send({ type: 'RESUME_SESSION', session })
+    resumeSession: (session, config) => {
+      if (session && config) actor.send({ type: 'RESUME_SESSION', session, config })
     },
     answerQuestion: (answer) => actor.send({ type: 'ANSWER_QUESTION', answer }),
     answerFollowUp: (answer) => actor.send({ type: 'ANSWER_FOLLOW_UP', answer }),

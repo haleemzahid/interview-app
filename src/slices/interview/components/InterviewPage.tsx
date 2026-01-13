@@ -6,8 +6,14 @@ import { QuestionView } from './QuestionView'
 import { NotesView } from './NotesView'
 import { ExportView } from './ExportView'
 import { TestsView } from './TestsView'
-import type { NavigationTab, InterviewConfig } from '../types'
+import type { NavigationTab, InterviewConfig, InterviewSession } from '../types'
 import { Upload, FolderOpen, AlertCircle } from 'lucide-react'
+
+// Type for saved data in localStorage
+interface SavedSessionData {
+  session: InterviewSession
+  config: InterviewConfig
+}
 
 export function InterviewPage() {
   const {
@@ -20,7 +26,8 @@ export function InterviewPage() {
   } = useInterviewMachine()
   const [activeTab, setActiveTab] = useState<NavigationTab>('interview')
   const [showRecoveryBanner, setShowRecoveryBanner] = useState(false)
-  const [recoveredSession, setRecoveredSession] = useState<string | null>(null)
+  const [recoveredSessionData, setRecoveredSessionData] =
+    useState<SavedSessionData | null>(null)
 
   // Auto-switch to export tab when interview is completed
   useEffect(() => {
@@ -33,37 +40,45 @@ export function InterviewPage() {
   useEffect(() => {
     const lastSessionId = localStorage.getItem('interview-last-session-id')
     if (lastSessionId && !session) {
-      const savedSession = localStorage.getItem(
+      const savedData = localStorage.getItem(
         `interview-session-${lastSessionId}`
       )
-      if (savedSession) {
-        const parsed = JSON.parse(savedSession)
-        if (parsed.status === 'in_progress') {
-          setRecoveredSession(lastSessionId)
-          setShowRecoveryBanner(true)
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData) as SavedSessionData
+          // Check if it's the new format (has both session and config)
+          if (parsed.session && parsed.config) {
+            if (parsed.session.status === 'in_progress') {
+              setRecoveredSessionData(parsed)
+              setShowRecoveryBanner(true)
+            }
+          }
+        } catch (e) {
+          // Invalid saved data, clean up
+          localStorage.removeItem(`interview-session-${lastSessionId}`)
+          localStorage.removeItem('interview-last-session-id')
         }
       }
     }
   }, [session])
 
   const handleRecoverSession = () => {
-    if (recoveredSession) {
-      const savedSession = localStorage.getItem(
-        `interview-session-${recoveredSession}`
-      )
-      if (savedSession) {
-        resumeSession(JSON.parse(savedSession))
-        setShowRecoveryBanner(false)
-      }
+    if (recoveredSessionData) {
+      resumeSession(recoveredSessionData.session, recoveredSessionData.config)
+      setShowRecoveryBanner(false)
+      setRecoveredSessionData(null)
     }
   }
 
   const handleDismissRecovery = () => {
-    if (recoveredSession) {
-      localStorage.removeItem(`interview-session-${recoveredSession}`)
+    if (recoveredSessionData) {
+      localStorage.removeItem(
+        `interview-session-${recoveredSessionData.session.id}`
+      )
       localStorage.removeItem('interview-last-session-id')
     }
     setShowRecoveryBanner(false)
+    setRecoveredSessionData(null)
   }
 
   const handleImportConfig = () => {
@@ -106,7 +121,7 @@ export function InterviewPage() {
             </p>
             <button
               onClick={handleImportConfig}
-              className="mt-6 flex items-center gap-2 rounded-lg bg-teal-600 px-6 py-3 font-medium text-white transition-colors hover:bg-teal-700 mx-auto"
+              className="mx-auto mt-6 flex items-center gap-2 rounded-lg bg-teal-600 px-6 py-3 font-medium text-white transition-colors hover:bg-teal-700"
             >
               <Upload className="h-5 w-5" />
               Fragebogen importieren
@@ -144,13 +159,15 @@ export function InterviewPage() {
       {/* Main Content */}
       <main className="flex flex-1 flex-col">
         {/* Recovery Banner */}
-        {showRecoveryBanner && (
+        {showRecoveryBanner && recoveredSessionData && (
           <div className="flex items-center justify-between border-b border-amber-200 bg-amber-50 px-6 py-3">
             <div className="flex items-center gap-3">
               <AlertCircle className="h-5 w-5 text-amber-600" />
               <span className="text-sm text-amber-800">
-                Eine vorherige Sitzung wurde gefunden. Möchten Sie sie
-                wiederherstellen?
+                Eine vorherige Sitzung wurde gefunden (Patient:{' '}
+                {recoveredSessionData.session.patientInfo.firstName}{' '}
+                {recoveredSessionData.session.patientInfo.lastName}). Möchten
+                Sie sie wiederherstellen?
               </span>
             </div>
             <div className="flex items-center gap-2">
