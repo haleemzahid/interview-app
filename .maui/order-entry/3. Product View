@@ -1,0 +1,637 @@
+
+
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="OrderEntry.Components.ProductsView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Dtos="clr-namespace:PennPOS.Maui.Shared.Dtos.MenuDtos;assembly=PennPOS.Maui.Shared"
+    xmlns:orderEntryDtos="clr-namespace:PennPOS.Maui.Shared.Dtos.OrderEntryDtos;assembly=PennPOS.Maui.Shared"
+    xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+    xmlns:componenets="clr-namespace:OrderEntry.Components"
+    xmlns:convert="clr-namespace:OrderEntry.Converters"
+    xmlns:local="clr-namespace:OrderEntry.ViewModels"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:sflistView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:tools="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:OrderEntry.ViewModels.MenuServiceVMpartialClasses"
+    xmlns:customControls="clr-namespace:OrderEntry.CustomControls"
+    x:DataType="vm:MenuServiceViewModel">
+    <ContentView.Resources>
+
+        <convert:BooleanToRebooleanConverter x:Key="BooleanToRebooleanConverter" />
+        <convert:MenuSelectionMatchConverter x:Key="SelectionMatchConverter" />
+        <convert:ProductSelectionMatchConverter x:Key="ProductSelectionMatchConverter" />
+
+        <Style x:Key="IconButton" TargetType="buttons:SfButton">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="ImageSize" Value="25" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="ShowIcon" Value="True" />
+            <Setter Property="HorizontalTextAlignment" Value="Start" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style
+            x:Key="IconButtonWhite"
+            BasedOn="{StaticResource IconButton}"
+            TargetType="buttons:SfButton">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="HorizontalTextAlignment" Value="Start" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="TextColor" Value="Black" />
+        </Style>
+        <Style
+            x:Key="ButtonWhite"
+            BasedOn="{StaticResource IconButton}"
+            TargetType="buttons:SfButton">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="HorizontalTextAlignment" Value="Center" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="TextColor" Value="Black" />
+        </Style>
+        <Style x:Key="LabelBaseStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+    </ContentView.Resources>
+  <Grid>
+
+    <Grid
+        Grid.Column="1"
+        Margin="5,10,5,10"
+        RowDefinitions="50,auto,auto,*,100"
+        RowSpacing="5">
+      <!--  Header Bar  -->
+      <Grid
+            Grid.Row="0"
+            Margin="0,5"
+            ColumnDefinitions="auto,auto,*,auto,auto,auto,auto"
+            ColumnSpacing="5">
+        <customControls:CustomButton
+                ConfigName="Search"
+                Margin="0"
+                HorizontalTextAlignment="Start"
+                ImageSize="20"
+                ImageSource="search.png"
+                Style="{StaticResource IconButtonWhite}" />
+        <customControls:CustomButton
+                ConfigName="Open Items"
+                Grid.Column="1"
+                Margin="0"
+                HorizontalTextAlignment="Start"
+                ImageSize="20"
+                ImageSource="openeye.png"
+                Style="{StaticResource IconButtonWhite}" />
+
+
+        <buttons:SfButton
+                Grid.Column="3"
+                Margin="0"
+                ImageSource="addchekc.png"
+                MaximumWidthRequest="120"
+                Style="{StaticResource IconButton}"
+                Text="All Checks" />
+        <buttons:SfButton
+                Grid.Column="4"
+                Margin="0"
+                ImageSource="sw.png"
+                MaximumWidthRequest="100"
+                Style="{StaticResource IconButton}"
+                Text="Switch User" />
+        <customControls:CustomButton
+                ConfigName="Exit"
+                Grid.Column="5"
+                Clicked="SfButton_Clicked"
+                ImageSize="15"
+                ImageSource="exiticon.png"
+                Style="{StaticResource CirculerIconButtonStyle}"
+                ToolTipProperties.Text="Exit Order Entry" />
+        <buttons:SfButton
+                Grid.Column="6"
+                Margin="0,0,10,0"
+                Command="{Binding ShowMenuCommand}"
+                ImageAlignment="Default"
+                ImageSize="30"
+                ImageSource="more.png"
+                Style="{StaticResource IconButton}"
+                WidthRequest="30" />
+      </Grid>
+
+      <Grid
+            Grid.RowSpan="5"
+            Margin="0,40,20,0"
+            HorizontalOptions="End"
+            IsVisible="{Binding IsMenuVisible}"
+            MinimumWidthRequest="100"
+            VerticalOptions="Start"
+            WidthRequest="50"
+            ZIndex="9999">
+        <Border
+                Stroke="Gray"
+                StrokeShape="{Rectangle RadiusX=5,
+                                        RadiusY=5}"
+                StrokeThickness="1">
+          <sflistView:SfListView
+                    Grid.Row="1"
+                    AutoFitMode="DynamicHeight"
+                    Background="White"
+                    ItemSize="40"
+                    ItemSpacing="0"
+                    MinimumWidthRequest="100"
+                    Orientation="Vertical"
+                    ScrollBarVisibility="Default"
+                    SelectionBackground="LightGray"
+                    SelectionMode="None">
+            <sflistView:SfListView.ItemsSource>
+              <x:Array Type="{x:Type x:String}">
+                <x:String>Item 1</x:String>
+                <x:String>Item 2</x:String>
+                <x:String>Item 3</x:String>
+                <x:String>Item 4</x:String>
+                <x:String>Item 5</x:String>
+              </x:Array>
+            </sflistView:SfListView.ItemsSource>
+
+            <sflistView:SfListView.ItemTemplate>
+              <DataTemplate>
+                <Border Padding="5,5,0,5">
+                  <Border
+                                    Grid.Row="2"
+                                    Margin="0,0,5,0"
+                                    Padding="10,0"
+                                    StrokeShape="RoundRectangle 5"
+                                    StrokeThickness="0">
+                    <Label
+                                        Grid.Column="1"
+                                        Text="{Binding .}"
+                                        VerticalOptions="Center" />
+                  </Border>
+                </Border>
+              </DataTemplate>
+            </sflistView:SfListView.ItemTemplate>
+          </sflistView:SfListView>
+
+        </Border>
+      </Grid>
+      <!--  Sub Header Bar  -->
+      <Grid
+            Grid.Row="1"
+            Margin="0,0,0,0"
+            BackgroundColor="PaleVioletRed"
+            ColumnDefinitions="*,100"
+            IsVisible="{Binding IsTestMode}">
+        <Label
+                Margin="10,0,0,0"
+                Text="Resturant is in testing mode, order will be placed for testing only"
+                VerticalOptions="Center" />
+        <buttons:SfButton
+                Grid.Column="1"
+                Background="Transparent"
+                FlowDirection="RightToLeft"
+                HorizontalTextAlignment="Center"
+                ImageSource="arrow_forward.png"
+                Style="{StaticResource IconButton}"
+                Text="More Info." />
+      </Grid>
+
+      <Border
+            x:Name="bor1"
+            Grid.Row="2"
+            Margin="0,0,0,0"
+            BackgroundColor="Gray"
+            HeightRequest="2"
+            Stroke="Gray" />
+      <!--  Body  -->
+      <Grid
+            x:Name="BodyGrid"
+            Grid.Row="3"
+            SizeChanged="BodyGrid_SizeChanged">
+        <Grid.Resources>
+          <Style x:Key="FlexlayoutStyle" TargetType="FlexLayout">
+            <Setter Property="AlignContent" Value="Start" />
+            <Setter Property="AlignItems" Value="Start" />
+            <Setter Property="Direction" Value="Column" />
+            <Setter Property="JustifyContent" Value="Start" />
+            <Setter Property="VerticalOptions" Value="Start" />
+            <Setter Property="Wrap" Value="Wrap" />
+          </Style>
+
+          <Style x:Key="FlexlayoutOuterBorderStyle" TargetType="Border">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="HorizontalOptions" Value="Start" />
+            <Setter Property="MaximumWidthRequest" Value="200" />
+            <Setter Property="MinimumWidthRequest" Value="200" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 5" />
+          </Style>
+
+          <Style x:Key="FlexlayoutInnerBorderStyle" TargetType="Border">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="3,2" />
+            <Setter Property="MinimumHeightRequest" Value="50" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 5" />
+            <Setter Property="StrokeThickness" Value="0" />
+          </Style>
+
+          <Style x:Key="ItmeListTitleStyle" TargetType="Border">
+            <Setter Property="Margin" Value="2,0" />
+            <Setter Property="Padding" Value="5.0" />
+            <Setter Property="Stroke" Value="Gray" />
+            <Setter Property="StrokeThickness" Value="1" />
+          </Style>
+        </Grid.Resources>
+
+        <Grid.Triggers>
+          <DataTrigger
+                    Binding="{Binding IsRTL}"
+                    TargetType="Grid"
+                    Value="true">
+            <Setter Property="FlowDirection" Value="RightToLeft" />
+          </DataTrigger>
+        </Grid.Triggers>
+        <ScrollView
+                x:Name="BodyScroll"
+                Padding="0,0,0,0"
+                Orientation="Horizontal"
+                SizeChanged="BodyScroll_SizeChanged">
+          <Grid
+                    x:Name="BodyMainGrid"
+                    Margin="0,0"
+                    ColumnDefinitions="auto,auto,auto,auto,auto"
+                    ColumnSpacing="1"
+
+                    IsVisible="{Binding CanShowHoldInvoices, Converter={StaticResource BooleanToRebooleanConverter}}"
+                    VerticalOptions="Start">
+            <!--  Menus  -->
+            <Grid RowDefinitions="45,*" RowSpacing="5">
+              <Border Grid.Row="0" Style="{StaticResource ItmeListTitleStyle}">
+                <customControls:CustomLabel ConfigName="Menus" Style="{StaticResource LabelBaseStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+              </Border>
+              <FlexLayout
+                            x:Name="Menu"
+                            Grid.Row="1"
+                            BindableLayout.ItemsSource="{Binding Menus, UpdateSourceEventName=PropertyChanged}"
+                            Style="{StaticResource FlexlayoutStyle}">
+                <BindableLayout.EmptyView>
+                  <Label
+                                    HorizontalOptions="Center"
+                                    Text="No Menu Found"
+                                    VerticalOptions="Center" />
+                </BindableLayout.EmptyView>
+
+                <BindableLayout.ItemTemplate>
+                  <DataTemplate x:DataType="Dtos:MenuDto">
+                    <Border Style="{StaticResource FlexlayoutOuterBorderStyle}">
+                      <Border.BackgroundColor>
+                        <MultiBinding Converter="{StaticResource SelectionMatchConverter}">
+                          <Binding Path="." />
+                          <!--  Current Menu item  -->
+                          <Binding Path="BindingContext.SelectedMenu" Source="{x:Reference Menu}" />
+                        </MultiBinding>
+                      </Border.BackgroundColor>
+
+                      <Border BackgroundColor="{Binding BackColor}" Style="{StaticResource FlexlayoutInnerBorderStyle}">
+                        <Border.GestureRecognizers>
+                          <TapGestureRecognizer
+                                                    Command="{Binding Path=BindingContext.SelectMenuCommand, Source={x:Reference Menu}}"
+                                                    CommandParameter="{Binding .}"
+                                                    NumberOfTapsRequired="1" />
+                        </Border.GestureRecognizers>
+                        <Label
+                                                Style="{StaticResource LabelBaseStyle}"
+                                                Text="{Binding Name}"
+                                                TextColor="{Binding ForeColor}" />
+                      </Border>
+                    </Border>
+                  </DataTemplate>
+                </BindableLayout.ItemTemplate>
+              </FlexLayout>
+            </Grid>
+            <!--  Menu Products  -->
+            <Grid
+                        Grid.Column="1"
+                        RowDefinitions="45,*"
+                        RowSpacing="5">
+              <Grid.Triggers>
+                <DataTrigger
+                                Binding="{Binding MenuProducts.Count}"
+                                TargetType="Grid"
+                                Value="0">
+                  <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+              </Grid.Triggers>
+
+              <Border Grid.Row="0" Style="{StaticResource ItmeListTitleStyle}">
+                <customControls:CustomLabel ConfigName="Menu Products" Style="{StaticResource LabelBaseStyle}" HorizontalTextAlignment="Center"  VerticalTextAlignment="Center"/>
+
+              </Border>
+              <FlexLayout
+                            x:Name="MenuProducts"
+                            Grid.Row="1"
+                          
+                            BindableLayout.ItemsSource="{Binding MenuProducts, UpdateSourceEventName=PropertyChanged}"
+                            Style="{StaticResource FlexlayoutStyle}">
+
+                <BindableLayout.EmptyView>
+                  <Label
+                                    HorizontalOptions="Center"
+                                    Text="No Menu Product Found"
+                                    VerticalOptions="Center" />
+                </BindableLayout.EmptyView>
+
+                <BindableLayout.ItemTemplate>
+                  <DataTemplate x:DataType="Dtos:ProductDto">
+                    <Border Style="{StaticResource FlexlayoutOuterBorderStyle}">
+                      <Border.BackgroundColor>
+                        <MultiBinding Converter="{StaticResource ProductSelectionMatchConverter}">
+                          <Binding Path="." />
+                          <!--  Current product item  -->
+                          <Binding Path="BindingContext.SelectedProduct" Source="{x:Reference MenuProducts}" />
+
+                        </MultiBinding>
+                      </Border.BackgroundColor>
+
+                      <Border BackgroundColor="{Binding BackColor}" Style="{StaticResource FlexlayoutInnerBorderStyle}">
+                        <Border.GestureRecognizers>
+                          <TapGestureRecognizer
+                                                    Command="{Binding Path=BindingContext.AddProductCommand, Source={x:Reference MenuProducts}}"
+                                                    CommandParameter="{Binding .}"
+                                                    NumberOfTapsRequired="1" />
+                        </Border.GestureRecognizers>
+                        <Label
+                                                Style="{StaticResource LabelBaseStyle}"
+                                                Text="{Binding Name}"
+                                                TextColor="{Binding ForeColor}" />
+                      </Border>
+                    </Border>
+                  </DataTemplate>
+                </BindableLayout.ItemTemplate>
+              </FlexLayout>
+
+            </Grid>
+            <!--  Categoris Bar  -->
+            <Grid
+                        Grid.Column="2"
+                        RowDefinitions="45,*"
+                        RowSpacing="5">
+              <Grid.Triggers>
+                <!--  Menu Categories  -->
+                <DataTrigger
+                                Binding="{Binding MenuCategories.Count}"
+                                TargetType="Grid"
+                                Value="1">
+                  <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+                <DataTrigger
+                                Binding="{Binding MenuCategories.Count}"
+                                TargetType="Grid"
+                                Value="0">
+                  <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+              </Grid.Triggers>
+              <Border Grid.Row="0" Style="{StaticResource ItmeListTitleStyle}">
+                <customControls:CustomLabel ConfigName="Menu Groups" Style="{StaticResource LabelBaseStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+              </Border>
+              <componenets:CategoriesView Grid.Row="1">
+                <componenets:CategoriesView.Triggers>
+                  <DataTrigger
+                                    Binding="{Binding MenuCategories.Count}"
+                                    TargetType="componenets:CategoriesView"
+                                    Value="1">
+                    <Setter Property="IsVisible" Value="False" />
+                  </DataTrigger>
+                  <DataTrigger
+                                    Binding="{Binding MenuCategories.Count}"
+                                    TargetType="componenets:CategoriesView"
+                                    Value="0">
+                    <Setter Property="IsVisible" Value="False" />
+                  </DataTrigger>
+                </componenets:CategoriesView.Triggers>
+              </componenets:CategoriesView>
+            </Grid>
+            <!--  Menu Category Products  -->
+            <Grid
+                        Grid.Column="3"
+                        RowDefinitions="45,*"
+                        RowSpacing="5">
+              <Grid.Triggers>
+                <!--  Menu Category Products  -->
+                <DataTrigger
+                                Binding="{Binding SelectedMenuCategory.Products.Count}"
+                                TargetType="Grid"
+                                Value="0">
+                  <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+              </Grid.Triggers>
+
+              <Border Grid.Row="0" Style="{StaticResource ItmeListTitleStyle}">
+                <customControls:CustomLabel ConfigName="Products" Style="{StaticResource LabelBaseStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+              </Border>
+              <FlexLayout
+                            x:Name="Products"
+                            Grid.Row="1"
+                            BindableLayout.ItemsSource="{Binding SelectedMenuCategory.Products, UpdateSourceEventName=PropertyChanged}"
+                            Style="{StaticResource FlexlayoutStyle}">
+
+                <BindableLayout.EmptyView>
+                  <Label
+                                    HorizontalOptions="Center"
+                                    Text="No Menu Product Found"
+                                    VerticalOptions="Center" />
+                </BindableLayout.EmptyView>
+
+                <BindableLayout.ItemTemplate>
+                  <DataTemplate x:DataType="Dtos:ProductDto">
+                    <Border Style="{StaticResource FlexlayoutOuterBorderStyle}">
+                      <Border.BackgroundColor>
+                        <MultiBinding Converter="{StaticResource ProductSelectionMatchConverter}">
+                          <Binding Path="." />
+                          <!--  Current product item  -->
+                          <Binding Path="BindingContext.SelectedProduct" Source="{x:Reference Products}" />
+                        </MultiBinding>
+                      </Border.BackgroundColor>
+                      <Border BackgroundColor="{Binding BackColor}" Style="{StaticResource FlexlayoutInnerBorderStyle}">
+                        <Border.GestureRecognizers>
+                          <TapGestureRecognizer
+                                                    Command="{Binding Path=BindingContext.AddProductCommand, Source={x:Reference Products}}"
+                                                    CommandParameter="{Binding .}"
+                                                    NumberOfTapsRequired="1" />
+                        </Border.GestureRecognizers>
+                        <Label
+                                                Style="{StaticResource LabelBaseStyle}"
+                                                Text="{Binding Name}"
+                                                TextColor="{Binding ForeColor}" />
+                      </Border>
+                    </Border>
+                  </DataTemplate>
+                </BindableLayout.ItemTemplate>
+              </FlexLayout>
+            </Grid>
+            <!--  Direct Products  -->
+            <Grid
+                        Grid.Column="4"
+                        RowDefinitions="45,*"
+                        RowSpacing="5">
+              <!--  Direct Products  -->
+              <Grid.Triggers>
+                <!--  Direct Products  -->
+
+                <DataTrigger
+                                Binding="{Binding DirectProducts.Count}"
+                                TargetType="Grid"
+                                Value="0">
+                  <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+              </Grid.Triggers>
+              <Border Grid.Row="0" Style="{StaticResource ItmeListTitleStyle}">
+                <customControls:CustomLabel ConfigName="Direct Products" Style="{StaticResource LabelBaseStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+
+              </Border>
+              <FlexLayout
+                            x:Name="NoMenuProducts"
+                            Grid.Row="1"
+                            BindableLayout.ItemsSource="{Binding DirectProducts, UpdateSourceEventName=PropertyChanged}"
+                            Style="{StaticResource FlexlayoutStyle}">
+
+                <BindableLayout.EmptyView>
+                  <Label
+                                    HorizontalOptions="Center"
+                                    Text="No Direct Product Found"
+                                    VerticalOptions="Center" />
+                </BindableLayout.EmptyView>
+
+                <BindableLayout.ItemTemplate>
+                  <DataTemplate x:DataType="Dtos:ProductDto">
+                    <Border Style="{StaticResource FlexlayoutOuterBorderStyle}">
+                      <Border.BackgroundColor>
+                        <MultiBinding Converter="{StaticResource ProductSelectionMatchConverter}">
+                          <Binding Path="." />
+                          <!--  Current product item  -->
+                          <Binding Path="BindingContext.SelectedProduct" Source="{x:Reference NoMenuProducts}" />
+                        </MultiBinding>
+                      </Border.BackgroundColor>
+
+                      <Border BackgroundColor="{Binding BackColor}" Style="{StaticResource FlexlayoutInnerBorderStyle}">
+                        <Border.GestureRecognizers>
+                          <TapGestureRecognizer
+                                                    Command="{Binding Path=BindingContext.AddProductCommand, Source={x:Reference NoMenuProducts}}"
+                                                    CommandParameter="{Binding .}"
+                                                    NumberOfTapsRequired="1" />
+                        </Border.GestureRecognizers>
+                        <Label
+                                                Style="{StaticResource LabelBaseStyle}"
+                                                Text="{Binding Name}"
+                                                TextColor="{Binding ForeColor}" />
+                      </Border>
+                    </Border>
+                  </DataTemplate>
+                </BindableLayout.ItemTemplate>
+              </FlexLayout>
+            </Grid>
+
+          </Grid>
+        </ScrollView>
+      </Grid>
+
+      <!--  Hold Invoices  -->
+      <Grid
+            Grid.Row="2"
+            Grid.RowSpan="4"
+            Margin="0,10,0,10"
+            IsVisible="{Binding CanShowHoldInvoices}"
+            MaximumHeightRequest="{OnIdiom 450,
+                                           Tablet=675}"
+            MinimumHeightRequest="{OnIdiom 260,
+                                           Tablet=350}"
+            VerticalOptions="StartAndExpand">
+        <sflistView:SfListView
+                x:Name="HoldInvoices"
+                AutoFitMode="DynamicHeight"
+                ItemSize="50"
+                ItemSpacing="5"
+                ItemsSource="{Binding HoldInvoices, UpdateSourceEventName=PropertyChanged}"
+                SelectedItem="{Binding SelectedHoldInvoice, UpdateSourceEventName=PropertyChanged}"
+                SelectionBackground="Blue"
+                SelectionChangedCommand="{Binding LoadHoldInvoiceCommand}"
+                SelectionChangedCommandParameter="{Binding SelectedHoldInvoice}">
+          <sflistView:SfListView.ItemsLayout>
+            <sflistView:GridLayout SpanCount="4" />
+          </sflistView:SfListView.ItemsLayout>
+          <sflistView:SfListView.ItemTemplate>
+            <DataTemplate x:DataType="orderEntryDtos:InvoiceDto">
+              <Border
+                            Grid.Row="2"
+                            Margin="0,0,0,0"
+                            Padding="10,0"
+                            BackgroundColor="White"
+                            MinimumHeightRequest="60"
+                            Stroke="Black"
+                            StrokeShape="RoundRectangle 5"
+                            StrokeThickness="0">
+                <Border.Resources>
+                  <Style TargetType="Label">
+                    <Setter Property="FontSize" Value="12" />
+                  </Style>
+                </Border.Resources>
+                <StackLayout Padding="0,3">
+
+                  <Label TextColor="Black" VerticalOptions="Center">
+                    <Label.FormattedText>
+                      <FormattedString>
+                        <Span Text="Invoice Id : " />
+                        <Span Text="{Binding Id}" />
+                      </FormattedString>
+                    </Label.FormattedText>
+                  </Label>
+
+                  <Label TextColor="Black" VerticalOptions="Center">
+                    <Label.FormattedText>
+                      <FormattedString>
+                        <Span Text="Total Items : " />
+                        <Span Text="{Binding TotalInvoiceItems}" />
+                      </FormattedString>
+                    </Label.FormattedText>
+                  </Label>
+                  <Label TextColor="Black" VerticalOptions="Center">
+                    <Label.FormattedText>
+                      <FormattedString>
+                        <Span Text="Grand Total : " />
+                        <Span Text="{Binding GrandTotal}" />
+                      </FormattedString>
+                    </Label.FormattedText>
+                  </Label>
+                  <Label TextColor="Black" VerticalOptions="Center">
+                    <Label.FormattedText>
+                      <FormattedString>
+                        <Span Text="Sub Total : " />
+                        <Span Text="{Binding SubTotal}" />
+                      </FormattedString>
+                    </Label.FormattedText>
+                  </Label>
+
+
+                </StackLayout>
+              </Border>
+            </DataTemplate>
+          </sflistView:SfListView.ItemTemplate>
+        </sflistView:SfListView>
+      </Grid>
+      <!--  Footer Bar  -->
+      <Grid
+            Grid.Row="4"
+            Margin="0,0"
+            RowDefinitions="2,*">
+        <Border BackgroundColor="Gray" Stroke="Gray" />
+        <componenets:FooterView Grid.Row="1" />
+      </Grid>
+
+    </Grid>
+    <Grid  IsVisible="{Binding IsLoading}" ZIndex="999" BackgroundColor="Black" Opacity="0.2">
+
+
+      <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" IsRunning="True"
+                     />
+    </Grid>
+  </Grid>
+</ContentView>

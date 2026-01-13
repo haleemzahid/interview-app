@@ -1,0 +1,435 @@
+
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="OrderEntry.Components.CartView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Convt="clr-namespace:OrderEntry.Converters"
+    xmlns:Dtos="clr-namespace:PennPOS.Maui.Shared.Dtos;assembly=PennPOS.Maui.Shared"
+    xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+    xmlns:customcontrols="clr-namespace:OrderEntry.CustomControls"
+    xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+    xmlns:model="clr-namespace:Data.Models.Entities.Menu;assembly=Data.Models"
+    xmlns:sflistView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:tools="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:OrderEntry.ViewModels.MenuServiceVMpartialClasses"
+    x:DataType="vm:MenuServiceViewModel">
+
+    <ContentView.Resources>
+
+        <Convt:AddOneToValueConverter x:Key="AddOneConverter" />
+        <Convt:ApplyMathCeilingConverter x:Key="ApplyMathCeilingconverter" />
+        <Style x:Key="IconButton" TargetType="buttons:SfButton">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="ImageSize" Value="25" />
+            <Setter Property="ShowIcon" Value="True" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style
+            x:Key="IconButtonWhite"
+            BasedOn="{StaticResource IconButton}"
+            TargetType="buttons:SfButton">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="TextColor" Value="Black" />
+        </Style>
+        <Style
+            x:Key="cartButtonWhite"
+            BasedOn="{StaticResource IconButtonWhite}"
+            TargetType="buttons:SfButton">
+
+            <Setter Property="CornerRadius" Value="7" />
+        </Style>
+        <Style
+            x:Key="CalculaterButtonStyle"
+            BasedOn="{StaticResource IconButtonWhite}"
+            TargetType="buttons:SfButton">
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+        <Style x:Key="LabelBaseStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="{OnIdiom Desktop=14}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="VerticalTextAlignment" Value="Center" />
+        </Style>
+    </ContentView.Resources>
+    <Grid
+        Grid.Column="1"
+        Margin="0,10"
+        RowDefinitions="50,auto,*">
+        <Grid.Triggers>
+            <DataTrigger
+                Binding="{Binding IsRTL}"
+                TargetType="Grid"
+                Value="true">
+                <Setter Property="FlowDirection" Value="RightToLeft" />
+            </DataTrigger>
+        </Grid.Triggers>
+        <Grid
+            Grid.Row="0"
+            Margin="0,5"
+            ColumnDefinitions="*,auto,auto,auto,auto,auto"
+            ColumnSpacing="5">
+
+            <buttons:SfButton
+                Grid.Column="4"
+                Margin="0,5,0,0"
+                ImageSource="sw.png"
+                MaximumWidthRequest="100"
+                Style="{StaticResource IconButton}"
+                Text="Switch User" />
+
+
+            <buttons:SfButton
+                Grid.Column="5"
+                Margin="0,0,10,0"
+                Command="{Binding ShowMenuCommand}"
+                ImageAlignment="Default"
+                ImageSize="30"
+                ImageSource="more.png"
+                Style="{StaticResource IconButton}"
+                WidthRequest="30" />
+
+        </Grid>
+        <Grid
+            Grid.Row="1"
+            Margin="10,5,20,5"
+            BackgroundColor="PaleVioletRed"
+            ColumnDefinitions="*,100"
+            IsVisible="{Binding IsTestMode}"
+            MaximumHeightRequest="50"
+            MinimumHeightRequest="40"
+            VerticalOptions="Center">
+            <Label
+                Margin="10,0,0,0"
+                Text="Resturant is in testing mode, order will be placed for testing only"
+                VerticalOptions="Center" />
+            <buttons:SfButton
+                Grid.Column="1"
+                Background="Transparent"
+                FlowDirection="RightToLeft"
+                HorizontalTextAlignment="Center"
+                ImageSource="arrow_forward.png"
+                MaximumHeightRequest="50"
+                MinimumHeightRequest="40"
+                Style="{StaticResource IconButton}"
+                Text="More Info." />
+        </Grid>
+        <Grid Grid.Row="3" ColumnDefinitions="1.3*,*">
+
+            <Grid RowDefinitions="*,0.2*">
+
+                <Grid
+                    Grid.Row="0"
+                    RowDefinitions="auto,auto,*"
+                    RowSpacing="5">
+
+                    <Grid
+                        Grid.Row="0"
+                        Margin="0,0,0,0"
+                        ColumnDefinitions="auto,auto,*"
+                        ColumnSpacing="5"
+                        MaximumHeightRequest="50"
+                        MinimumHeightRequest="40">
+
+                        <Label
+                            Margin="0,0,0,0"
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="Balance Due:"
+                            VerticalOptions="Center" />
+
+                        <Label
+                            Grid.Column="1"
+                            Margin="0,0,0,0"
+                            Padding="0,0,0,0"
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            HorizontalTextAlignment="Start"
+                            Text="{Binding Controller.TotalDue, UpdateSourceEventName=PropertyChanged, StringFormat='{}{0:C2}'}"
+                            VerticalOptions="Center" />
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        ColumnDefinitions="auto,*"
+                        MaximumHeightRequest="70"
+                        MinimumHeightRequest="50"
+                        RowDefinitions="auto,*"
+                        RowSpacing="5">
+                        <Label
+                            Margin="0,0,0,0"
+                            Style="{StaticResource LabelBaseStyle}"
+                            Text="Balance Due" />
+                        <Label
+                            Grid.Column="1"
+                            Margin="0,0,5,0"
+                            HorizontalTextAlignment="End"
+                            Style="{StaticResource LabelBaseStyle}"
+                            Text="Amout tendared" />
+                        <buttons:SfButton
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Margin="0,0,5,0"
+                            CornerRadius="7"
+                            MaximumHeightRequest="50"
+                            MinimumHeightRequest="40"
+                            Style="{StaticResource IconButtonWhite}"
+                            Text="{Binding Controller.TotalDue, UpdateSourceEventName=PropertyChanged, StringFormat='{}{0:C2}'}" />
+                        <Border
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Margin="5,0,5,-3"
+                            MaximumHeightRequest="50"
+                            MinimumHeightRequest="40"
+                            Stroke="Black"
+                            StrokeShape="RoundRectangle 7">
+                            <customcontrols:PennPosNumericEntry
+                                x:Name="txtTotalPait"
+                                Background="Transparent"
+                                FontSize="14"
+                                Text="{Binding TotalPaid, UpdateSourceEventName=PropertyChanged}" />
+
+                        </Border>
+                    </Grid>
+
+                    <Grid
+                        Grid.Row="2"
+                        Margin="0,0,0,0"
+                        RowDefinitions="*,auto,auto">
+
+                        <Grid
+                            Grid.Row="0"
+                            ColumnDefinitions="*,*,*,*"
+                            RowDefinitions="*,*,*,*">
+                            <buttons:SfButton
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="0,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="1"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="1" />
+                            <buttons:SfButton
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="5,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="2"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="2" />
+                            <buttons:SfButton
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Margin="0,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="3"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="3" />
+                            <buttons:SfButton
+                                Grid.Row="0"
+                                Grid.Column="3"
+                                Margin="5,5,5,5"
+                                Background="Gray"
+                                Command="{Binding FixedPriceCommand}"
+                                CommandParameter="{Binding Controller.TotalDue, Converter={StaticResource ApplyMathCeilingconverter}}"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="{Binding Controller.TotalDue, Converter={StaticResource ApplyMathCeilingconverter}, StringFormat='{}{0:C0}'}" />
+
+                            <buttons:SfButton
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Margin="0,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="4"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="4" />
+                            <buttons:SfButton
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="5,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="5"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="5" />
+                            <buttons:SfButton
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Margin="0,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="6"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="6" />
+                            <buttons:SfButton
+                                Grid.Row="1"
+                                Grid.Column="3"
+                                Margin="5,5,5,5"
+                                Background="Gray"
+                                Command="{Binding FixedPriceCommand}"
+                                CommandParameter="{Binding Controller.TotalDue, Converter={StaticResource AddOneConverter}}"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="{Binding Controller.TotalDue, StringFormat='{}{0:C0}', Converter={StaticResource AddOneConverter}}" />
+
+                            <buttons:SfButton
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Margin="0,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="7"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="7" />
+                            <buttons:SfButton
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="5,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="8"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="8" />
+                            <buttons:SfButton
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                Margin="0,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="9"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="9" />
+                            <buttons:SfButton
+                                Grid.Row="2"
+                                Grid.Column="3"
+                                Margin="5,5,5,5"
+                                Background="Gray"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="R"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="R" />
+
+                            <buttons:SfButton
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                Margin="0,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="C"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="C" />
+                            <buttons:SfButton
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Margin="5,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="0"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="0" />
+                            <buttons:SfButton
+                                Grid.Row="3"
+                                Grid.Column="2"
+                                Margin="0,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="00"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="00" />
+                            <buttons:SfButton
+                                Grid.Row="3"
+                                Grid.Column="3"
+                                Margin="5,5,5,5"
+                                Command="{Binding CalculatorBtnCommand}"
+                                CommandParameter="X"
+                                Style="{StaticResource CalculaterButtonStyle}"
+                                Text="X" />
+                        </Grid>
+                        <Grid
+                            Grid.Row="1"
+                            Margin="0,5,0,0"
+                            ColumnDefinitions="*,*">
+                            <customcontrols:CustomButton
+                                ConfigName="Split evenly"
+                                Margin="0,0,5,0"
+                                HorizontalTextAlignment="Start"
+                                ImageAlignment="Default"
+                                ImageSource="Split.png"
+                                Style="{StaticResource cartButtonWhite}" />
+                            <customcontrols:CustomButton
+                                ConfigName="Service charges"
+                                Grid.Column="1"
+                                Margin="5,0,0,0"
+                                HorizontalTextAlignment="Center"
+                                ImageAlignment="Default"
+                                Style="{StaticResource cartButtonWhite}" />
+                        </Grid>
+                        <Grid
+                            Grid.Row="2"
+                            Margin="0,10,0,0"
+                            ColumnDefinitions="auto,*,auto,auto"
+                            ColumnSpacing="2">
+                            <Label
+                                FontAttributes="Bold"
+                                LineBreakMode="WordWrap"
+                                Text="Coupon Code:"
+                                VerticalOptions="Center" />
+                            <Entry
+                                Grid.Column="1"
+                                Margin="0,0"
+                                Background="White"
+                                Text="{Binding CouponCode}" />
+                            <customcontrols:CustomButton
+                                ConfigName="Apply"
+                                Grid.Column="2"
+                                Margin="0,2"
+                                Command="{Binding ApplyCouponCommand}"
+                                CornerRadius="7"
+                                Style="{StaticResource IconButtonWhite}"
+                                WidthRequest="50" />
+                            <customcontrols:CustomButton
+                                ConfigName="Coupons"
+                                Grid.Column="3"
+                                Margin="0,2"
+                                Command="{Binding ShowSmartCouponPopupCommand}"
+                                CornerRadius="7"
+                                Style="{StaticResource IconButtonWhite}"
+                                WidthRequest="70" />
+                        </Grid>
+                    </Grid>
+
+                </Grid>
+            </Grid>
+            <Grid
+                Grid.Column="1"
+                Margin="0,70,0,0"
+                RowDefinitions="auto,*"
+                ColumnDefinitions="0.09*,*,0.09*">
+
+                <Border Grid.Row="0" Grid.Column="1" Margin="5,0" Padding="10" StrokeShape="RoundRectangle 10,10,0,0">
+                    <customcontrols:CustomLabel ConfigName="Payment Methods" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="14" />
+                </Border>
+
+                <ScrollView Grid.Row="1" Grid.Column="1" MinimumWidthRequest="250">
+                    <VerticalStackLayout
+                        x:Name="paymentMethodsListView"
+                        BindableLayout.ItemsSource="{Binding PaymentMethods}"
+                        Spacing="5">
+
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="Dtos:PaymentMethodDto">
+                                <customcontrols:CustomPaymentMethodBorder
+                                    Margin="5,0"
+                                    Padding="10"
+                                    Stroke="LightGray"
+                                    StrokeShape="{Rectangle RadiusX=10,
+                                                            RadiusY=10}">
+                                    <customcontrols:CustomPaymentMethodBorder.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Path=BindingContext.UsePaymentMethodCommand, Source={x:Reference paymentMethodsListView}}" CommandParameter="{Binding .}" />
+                                    </customcontrols:CustomPaymentMethodBorder.GestureRecognizers>
+                                    <Label
+                                        FontSize="14"
+                                        HorizontalOptions="Center"
+                                        Text="{Binding Name}" />
+                                </customcontrols:CustomPaymentMethodBorder>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </Grid>
+    </Grid>
+</ContentView>

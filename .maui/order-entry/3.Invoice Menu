@@ -1,0 +1,299 @@
+
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="OrderEntry.Components.InvoiceMenu"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+    xmlns:cmp="clr-namespace:OrderEntry.Components"
+    xmlns:conv="clr-namespace:OrderEntry.Converters"
+    xmlns:dtos="clr-namespace:OrderEntry.Dtos"
+    xmlns:editors="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:receipt="clr-namespace:OrderEntry.Components.Receipt.Views"
+    xmlns:sflistView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:tools="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:OrderEntry.ViewModels.MenuServiceVMpartialClasses"
+    xmlns:vm2="clr-namespace:OrderEntry.ViewModels"
+    xmlns:customControls="clr-namespace:OrderEntry.CustomControls"
+    x:DataType="vm:MenuServiceViewModel">
+    <ContentView.Resources>
+        <conv:GreaterThenZero x:Key="GreaterThanZero" />
+        <conv:CountGreaterThanZeroConverter x:Key="CountGreaterThanZeroConverter" />
+        <conv:ExtentListHeight x:Key="ExtentListHeight" />
+        <conv:ToppingsHeightConverter x:Key="ToppingsHeightConverter" />
+        <Style x:Key="IconButton" TargetType="buttons:SfButton">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="ImageSize" Value="25" />
+            <Setter Property="ShowIcon" Value="True" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style
+            x:Key="IconButtonWhite"
+            BasedOn="{StaticResource IconButton}"
+            TargetType="buttons:SfButton">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="TextColor" Value="Black" />
+        </Style>
+        <Style x:Key="LabelBaseStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+    </ContentView.Resources>
+
+    <Grid Margin="5" RowDefinitions="*,auto">
+        <Grid.Triggers>
+            <DataTrigger
+                Binding="{Binding IsRTL}"
+                TargetType="Grid"
+                Value="true">
+                <Setter Property="FlowDirection" Value="RightToLeft" />
+            </DataTrigger>
+        </Grid.Triggers>
+        <Grid RowDefinitions="auto,*">
+
+            <Border
+                Margin="0,0,1,0"
+                Padding="10"
+                Background="WhiteSmoke"
+                StrokeShape="RoundRectangle 15,15,0,0">
+                <Grid
+                    Padding="0"
+                    BackgroundColor="White"
+                    RowDefinitions="auto,4,*,*"
+                    RowSpacing="5">
+
+
+                    <!--  Row 0  -->
+                    <Grid ColumnDefinitions="auto,auto,*,auto,auto" MaximumHeightRequest="40">
+
+                        <buttons:SfButton
+                            Margin="2"
+                            Padding="0,0,0,0"
+                            Background="Transparent"
+                            Command="{Binding BackCommand}"
+                            ImageAlignment="Default"
+                            ImageSource="keyboard_back1.png"
+                            MaximumWidthRequest="35"
+                            Style="{StaticResource IconButton}">
+                            <buttons:SfButton.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding Controller.Items.Count}"
+                                    TargetType="buttons:SfButton"
+                                    Value="0">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </buttons:SfButton.Triggers>
+                        </buttons:SfButton>
+                        <Label
+                            Grid.Column="1"
+                            FontSize="14"
+                            MinimumWidthRequest="50"
+                            Text="{Binding SelectedCustomer.Name}"
+                            VerticalOptions="Center" />
+                        <customControls:CustomButton
+                            ConfigName="Tab Name"
+                            Grid.Column="3"
+                            Margin="2"
+                            HorizontalTextAlignment="Start"
+                            ImageSize="20"
+                            ImageSource="tabname.png"
+                            Style="{StaticResource IconButton}" />
+                        <customControls:CustomButton
+                            ConfigName="Search"
+                            Grid.Column="4"
+                            Margin="2"
+                            ImageAlignment="Default"
+                            ImageSource="verticalline.png"
+                            MaximumWidthRequest="40"
+                            Style="{StaticResource IconButton}">
+                            <FlyoutBase.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Hello" />
+                                </MenuFlyout>
+                            </FlyoutBase.ContextFlyout>
+                        </customControls:CustomButton>
+
+
+                    </Grid>
+                    <!--  Row 1  -->
+                    <Border
+                        Grid.Row="1"
+                        Margin="0,0"
+                        BackgroundColor="LightGray" />
+                    <!--  Row 2  -->
+                    <Grid Grid.Row="2" ColumnDefinitions="*,*">
+                        <buttons:SfButton
+                            Grid.Column="0"
+                            Margin="2"
+                            Command="{Binding DiningOptionClickedCommand}"
+                            IsEnabled="{Binding CanChangeDiningOption}"
+                            IsVisible="False"
+                            Style="{StaticResource IconButton}"
+                            Text="{Binding DininButtonText}" />
+
+                        <Grid
+                            Grid.Column="0"
+                            Margin="2"
+                            IsEnabled="{Binding CanChangeDiningOption}"
+                            RowDefinitions="auto,*">
+                            <Grid.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding Controller.SelectedItems.Count}"
+                                    TargetType="Grid"
+                                    Value="0">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Grid.Triggers>
+
+                            <Label Text="Service Methods" />
+                            <editors:SfComboBox
+                                Grid.Row="1"
+                                DisplayMemberPath="Name"
+                                ItemsSource="{Binding ServiceMethods}"
+                                SelectedItem="{Binding SelectedServiceMethod}" />
+                        </Grid>
+                        <customControls:CustomButton
+                            ConfigName="Client"
+                            Grid.Column="1"
+                            Margin="2"
+                            Style="{StaticResource IconButton}" />
+                    </Grid>
+                    <!--  Row 3  -->
+                    <Grid Grid.Row="3" ColumnDefinitions="*,*,*">
+
+                        <customControls:CustomButton
+                            ConfigName="Svc change"
+                            Grid.Column="0"
+                            Margin="2"
+                            MinimumWidthRequest="100"
+                            Style="{StaticResource IconButton}" />
+                        <customControls:CustomButton
+                            ConfigName="Split"
+                            Grid.Column="1"
+                            Margin="2"
+                            MinimumWidthRequest="50"
+                            Style="{StaticResource IconButton}" />
+                        <customControls:CustomButton
+                            ConfigName="Discount"
+                            Grid.Column="2"
+                            Margin="2"
+                            Command="{Binding DiscountCommand}"
+                            MinimumWidthRequest="80"
+                            Style="{StaticResource IconButton}" />
+                    </Grid>
+                </Grid>
+            </Border>
+            <Border
+                Grid.Row="1"
+                Margin="0,1,1,0"
+                Padding="10,0"
+                Background="WhiteSmoke"
+                StrokeShape="RoundRectangle 0,0,0,0">
+                <ScrollView>
+
+                    <receipt:ReceiptView
+                        ItemsSource="{Binding Controller.Items}"
+                        MaximumHeightRequest="320"
+                        SelectedItems="{Binding Controller.SelectedItems}" />
+                </ScrollView>
+
+            </Border>
+        </Grid>
+        <Border
+            Grid.Row="1"
+            Margin="0,1,0,0"
+            Padding="10,5,10,10"
+            Background="WhiteSmoke"
+            StrokeShape="RoundRectangle 0,0,15,15">
+            <Grid RowDefinitions="auto,auto" VerticalOptions="Start">
+                <!--  Row 0  -->
+                <Grid RowDefinitions="auto,40,*">
+                    <Border
+                        Grid.Row="0"
+                        Margin="0,1,0,0"
+                        Padding="0"
+                        Background="IndianRed"
+                        HeightRequest="35"
+                        IsVisible="{Binding IsTestMode}"
+                        StrokeShape="RoundRectangle 5,5,5,5">
+                        <Label
+                            FontSize="10"
+                            HorizontalOptions="Center"
+                            Text="Payment Mode: PAYMENT WILL NOT BE PROCCECED"
+                            VerticalOptions="Center" />
+                    </Border>
+
+                    <Grid
+                        Grid.Row="1"
+                        ColumnDefinitions="*,*"
+                        VerticalOptions="StartAndExpand">
+                        <customControls:CustomButton
+                            ConfigName="Stay"
+                            Margin="0,2,5,0"
+                            Style="{StaticResource IconButton}" />
+                        <customControls:CustomButton
+                            ConfigName="Send"
+                            Grid.Column="1"
+                            Margin="5,2,0,0"
+                            Style="{StaticResource IconButton}" />
+                    </Grid>
+
+                    <Grid
+                        Grid.Row="2"
+                        Margin="5,5"
+                        ColumnDefinitions="*,*,*"
+                        VerticalOptions="StartAndExpand">
+                        <VerticalStackLayout VerticalOptions="Center">
+
+                            <Label Style="{StaticResource LabelBaseStyle}" Text="{Binding Controller.SubTotalText, UpdateSourceEventName=PropertyChanged}" />
+                            <Label Style="{StaticResource LabelBaseStyle}" Text="Total Discount:" />
+                            <Label Style="{StaticResource LabelBaseStyle}" Text="Total Tax:" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center">
+                            <VerticalStackLayout.Resources>
+                                <Style BasedOn="{StaticResource LabelBaseStyle}" TargetType="Label">
+                                    <Setter Property="HorizontalOptions" Value="End" />
+                                    <Setter Property="HorizontalTextAlignment" Value="Start" />
+
+                                </Style>
+                            </VerticalStackLayout.Resources>
+                            <Label Style="{StaticResource LabelBaseStyle}" Text="{Binding Controller.SubTotal, UpdateSourceEventName=PropertyChanged, StringFormat='{}{0:C2}'}" />
+                            <Label Style="{StaticResource LabelBaseStyle}" Text="{Binding Controller.GrandTotalDiscount, UpdateSourceEventName=PropertyChanged, StringFormat='{}{0:C2}'}" />
+                            <Label Style="{StaticResource LabelBaseStyle}" Text="{Binding Controller.TotalTax, UpdateSourceEventName=PropertyChanged, StringFormat='{}{0:C2}'}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                </Grid>
+
+                <!--  Row 1  -->
+                <Grid
+                    Grid.Row="1"
+                    Margin="0,2,0,0"
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="5">
+                    <customControls:CustomButton
+                        ConfigName="No Sale"
+                        Command="{Binding NoSaleClickedCommand}"
+                        Stroke="Black"
+                        StrokeThickness="2"
+                        Style="{StaticResource IconButton}" />
+                    <Grid Grid.Column="1">
+
+                        <customControls:CustomButton
+                            ConfigName="Total Due"
+                            Command="{Binding PayCommand}"
+                            IsEnabled="{Binding Controller.Items.Count, Converter={StaticResource GreaterThanZero}}"
+                            Stroke="Black"
+                            StrokeThickness="2"
+                            Style="{StaticResource IconButton}"
+                            Text="{Binding Controller.GrandTotal, UpdateSourceEventName=PropertyChanged, StringFormat='{}{0:C2}'}" />
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

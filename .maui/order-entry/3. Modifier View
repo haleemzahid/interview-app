@@ -1,0 +1,852 @@
+
+
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="OrderEntry.Components.ModifiresView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+    xmlns:components="clr-namespace:OrderEntry.Components"
+    xmlns:conv="clr-namespace:OrderEntry.Converters"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:Dtos="clr-namespace:PennPOS.Maui.Shared.Dtos.MenuDtos;assembly=PennPOS.Maui.Shared"
+    xmlns:sflistView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:vm="clr-namespace:OrderEntry.ViewModels.MenuServiceVMpartialClasses"
+    xmlns:customControls="clr-namespace:OrderEntry.CustomControls"
+    x:DataType="vm:MenuServiceViewModel">
+    <ContentView.Resources>
+        <conv:CountGreaterThanZeroConverter x:Key="CountGreaterThanZeroConverter" />
+        <conv:AndBooleanConverter x:Key="AndBooleanConverter" />
+        <conv:GreaterThenZero x:Key="GreaterThenZeroConverter" />
+        <conv:GreaterThenOne x:Key="GreaterThenOneConverter" />
+        <conv:NullToboolConverter x:Key="NullToboolConverter" />
+        <Style x:Key="IconButton" TargetType="buttons:SfButton">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="ImageSize" Value="25" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="ShowIcon" Value="True" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style
+            x:Key="IconButtonWhite"
+            BasedOn="{StaticResource IconButton}"
+            TargetType="buttons:SfButton">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="TextColor" Value="Black" />
+        </Style>
+        <Style x:Key="LabelBaseStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+    </ContentView.Resources>
+    <Grid
+        Grid.Column="1"
+        Margin="0,10,5,10"
+        RowDefinitions="50,auto,*"
+        RowSpacing="5">
+        <Grid ColumnDefinitions="auto,auto,auto,*,auto,auto,auto,auto,auto" ColumnSpacing="10">
+            <Grid.Triggers>
+                <DataTrigger
+                    Binding="{Binding Controller.SelectedItems.Count}"
+                    TargetType="Grid"
+                    Value="0">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+            </Grid.Triggers>
+            <buttons:SfButton
+                Margin="0"
+                Padding="0,0,0,0"
+                Command="{Binding DecreaseSizeCommand}"
+                CornerRadius="40"
+                HeightRequest="40"
+                ImageAlignment="Default"
+                ImageSize="20"
+                ImageSource="substract.png"
+                Style="{StaticResource IconButtonWhite}"
+                WidthRequest="40" />
+            <Border
+                Grid.Column="1"
+                Margin="0,0,0,0"
+                Padding="5"
+                Background="LightGray"
+                HeightRequest="40"
+                Stroke="Gray"
+                StrokeShape="RoundRectangle 5"
+                StrokeThickness="1"
+                WidthRequest="40">
+                <Label
+                    FontSize="10"
+                    HorizontalOptions="Center"
+                    Text="{Binding Controller.CurrentReceiptItem.Quanity}"
+                    VerticalOptions="Center" />
+            </Border>
+            <buttons:SfButton
+                Grid.Column="2"
+                Margin="0"
+                Command="{Binding IncreaseSizeCommand}"
+                CornerRadius="40"
+                HeightRequest="40"
+                ImageAlignment="Default"
+                ImageSize="20"
+                ImageSource="add.png"
+                Style="{StaticResource IconButtonWhite}"
+                WidthRequest="40" />
+
+            <customControls:CustomButton
+                ConfigName="Special Request"
+                Grid.Column="4"
+                Command="{Binding SpecialRequestCommand}"
+                HeightRequest="40"
+                Stroke="Black"
+                StrokeThickness="1"
+                Style="{StaticResource IconButton}" />
+            <buttons:SfButton
+                Grid.Column="5"
+                Command="{Binding RepeatCommand}"
+                CornerRadius="40"
+                HeightRequest="40"
+                ImageAlignment="Default"
+                ImageSize="20"
+                ImageSource="repeat.png"
+                Style="{StaticResource IconButtonWhite}"
+                WidthRequest="40" />
+
+            <buttons:SfButton
+                Grid.Column="6"
+                Command="{Binding RemoveInvoiceItemCommand}"
+                CornerRadius="40"
+                HeightRequest="40"
+                ImageAlignment="Default"
+                ImageSize="20"
+                ImageSource="deleteicon.png"
+                Style="{StaticResource IconButtonWhite}"
+                WidthRequest="40" />
+            <buttons:SfButton
+                Grid.Column="7"
+                Command="{Binding CancelOrderClickedCommand}"
+                CornerRadius="40"
+                HeightRequest="40"
+                ImageAlignment="Default"
+                ImageSize="20"
+                ImageSource="remove.png"
+                Style="{StaticResource IconButtonWhite}"
+                WidthRequest="40" />
+
+            <buttons:SfButton
+                Grid.Column="8"
+                Command="{Binding DoneCommand}"
+                CornerRadius="40"
+                HeightRequest="40"
+                ImageAlignment="Default"
+                ImageSize="20"
+                ImageSource="tick.png"
+                Style="{StaticResource IconButtonWhite}"
+                WidthRequest="40" />
+        </Grid>
+        <Border
+            x:Name="bor1"
+            Grid.Row="1"
+            Margin="0,0,0,0"
+            BackgroundColor="Gray"
+            HeightRequest="2"
+            Stroke="Gray" />
+        <Grid
+            IsVisible="False"
+            Grid.Row="2"
+            Margin="0,0,0,0"
+            RowDefinitions="auto,auto,auto,auto,*">
+
+
+            <Grid.Triggers>
+                <DataTrigger
+                    Binding="{Binding Controller.SelectedItems.Count}"
+                    TargetType="Grid"
+                    Value="0">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+
+                <DataTrigger
+                    Binding="{Binding IsRTL}"
+                    TargetType="Grid"
+                    Value="true">
+                    <Setter Property="FlowDirection" Value="RightToLeft" />
+                </DataTrigger>
+
+            </Grid.Triggers>
+            <Grid
+                ColumnDefinitions="*,*,*,*"
+                ColumnSpacing="5"
+                MaximumHeightRequest="260"
+                >
+                <Grid.Resources>
+                    <Style TargetType="sflistView:ListViewItem">
+                        <Setter Property="VisualStateManager.VisualStateGroups">
+                            <VisualStateGroupList>
+                                <VisualStateGroup>
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="Background" Value="Transparent" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Property="Background" Value="LightSkyBlue" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateGroupList>
+                        </Setter>
+                    </Style>
+                    <Style x:Key="ItmeListTitleStyle" TargetType="Border">
+                        <Setter Property="Margin" Value="2,0" />
+                        <Setter Property="Padding" Value="5.0" />
+                        <Setter Property="Stroke" Value="Gray" />
+                        <Setter Property="StrokeThickness" Value="1" />
+                    </Style>
+                </Grid.Resources>
+
+                <Grid
+                    Grid.Column="0"
+                    IsVisible="{Binding SelectedProduct.AssignedSizes, Converter={StaticResource CountGreaterThanZeroConverter}}"
+                    RowDefinitions="45,*"
+                    RowSpacing="5">
+
+                    <Border Grid.Row="0" Style="{StaticResource ItmeListTitleStyle}">
+                        <Label Style="{StaticResource LabelBaseStyle}" Text="Size" />
+
+                    </Border>
+                    <sflistView:SfListView
+                        x:Name="ModifierList"
+                        Grid.Row="1"
+                        Margin="0,0,0,0"
+                        AutoFitMode="DynamicHeight"
+                        ItemSize="60"
+                        ItemSpacing="0"
+                        ItemsSource="{Binding SelectedProduct.AssignedSizes}"
+                        ScrollBarVisibility="Default"
+                        SelectedItem="{Binding SelectedSize, Mode=OneWay}">
+                        <sflistView:SfListView.ItemTemplate>
+                            <DataTemplate x:DataType="Dtos:AssignedSizeDto">
+                                <Border Padding="0,0,0,5" StrokeShape="RoundRectangle 5">
+                                    <Border
+                                        Margin="0"
+                                        Padding="10,0"
+                                        BackgroundColor="{Binding Size.BackColor}"
+                                        MinimumHeightRequest="45"
+                                        StrokeShape="RoundRectangle 5"
+                                        StrokeThickness="0">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Path=BindingContext.ModifierDoubleTappedCommand, Source={x:Reference ModifierList}}" NumberOfTapsRequired="2" />
+                                            <TapGestureRecognizer
+                                                Command="{Binding Path=BindingContext.AddSizeCommand, Source={x:Reference ModifierList}}"
+                                                CommandParameter="{Binding .}"
+                                                NumberOfTapsRequired="1" />
+                                        </Border.GestureRecognizers>
+                                        <Label
+                                            Style="{StaticResource LabelBaseStyle}"
+                                            Text="{Binding Size.Name, UpdateSourceEventName=PropertyChanged}"
+                                            TextColor="{Binding Size.ForeColor}" />
+                                    </Border>
+                                </Border>
+                            </DataTemplate>
+                        </sflistView:SfListView.ItemTemplate>
+                        <sflistView:SfListView.SelectedItemTemplate>
+                            <DataTemplate x:DataType="Dtos:AssignedSizeDto">
+                                <Border
+                                    Padding="0,0,0,2"
+                                    BackgroundColor="SkyBlue"
+                                    StrokeShape="RoundRectangle 5">
+
+                                    <Border
+                                        Margin="0,0,0,5"
+                                        Padding="10,0"
+                                        BackgroundColor="{Binding Size.BackColor}"
+                                        MinimumHeightRequest="45"
+                                        StrokeShape="RoundRectangle 5"
+                                        StrokeThickness="0">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Path=BindingContext.ModifierDoubleTappedCommand, Source={x:Reference ModifierList}}" NumberOfTapsRequired="2" />
+                                            <TapGestureRecognizer
+                                                Command="{Binding Path=BindingContext.AddSizeCommand, Source={x:Reference ModifierList}}"
+                                                CommandParameter="{Binding .}"
+                                                NumberOfTapsRequired="1" />
+                                        </Border.GestureRecognizers>
+                                        <Label
+                                            Style="{StaticResource LabelBaseStyle}"
+                                            Text="{Binding Size.Name, UpdateSourceEventName=PropertyChanged}"
+                                            TextColor="{Binding Size.ForeColor}" />
+                                    </Border>
+                                </Border>
+                            </DataTemplate>
+                        </sflistView:SfListView.SelectedItemTemplate>
+
+                    </sflistView:SfListView>
+                </Grid>
+
+                <Grid
+                    Grid.Column="1"
+                    IsEnabled="{Binding IsSizeSelected}"
+                    IsVisible="{Binding SelectedProduct.ProductTypes, Converter={StaticResource CountGreaterThanZeroConverter}}"
+                    RowDefinitions="45,*"
+                    RowSpacing="5">
+                    <Border Grid.Row="0" Style="{StaticResource ItmeListTitleStyle}">
+                        <Label Style="{StaticResource LabelBaseStyle}" Text="{Binding SelectedProduct.ProductTypeName}" />
+
+                    </Border>
+                    <sflistView:SfListView
+                        x:Name="TypesList"
+                        Grid.Row="1"
+                        Margin="0,0,0,0"
+                        AutoFitMode="DynamicHeight"
+                        IsEnabled="{Binding IsSizeSelected}"
+                        ItemSize="60"
+                        ItemSpacing="0"
+                        ItemsSource="{Binding SelectedProduct.ProductTypes}"
+                        ScrollBarVisibility="Default"
+                        SelectedItem="{Binding SelectedType, Mode=OneWay}">
+                        <sflistView:SfListView.Triggers />
+
+                        <sflistView:SfListView.ItemTemplate>
+                            <DataTemplate x:DataType="Dtos:ProductTypeDto">
+                                <Border Padding="0,0,0,5" StrokeShape="RoundRectangle 5">
+                                    <Border
+                                        Margin="0"
+                                        Padding="10,0"
+                                        BackgroundColor="SeaGreen"
+                                        MinimumHeightRequest="45"
+                                        StrokeShape="RoundRectangle 5"
+                                        StrokeThickness="0">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Path=BindingContext.AddTypeCommand, Source={x:Reference TypesList}}"
+                                                CommandParameter="{Binding .}"
+                                                NumberOfTapsRequired="1" />
+                                        </Border.GestureRecognizers>
+                                        <Label
+                                            Style="{StaticResource LabelBaseStyle}"
+                                            Text="{Binding Name, UpdateSourceEventName=PropertyChanged}"
+                                            TextColor="White">
+                                            <Label.Triggers>
+                                                <DataTrigger Binding="{Binding IsEnabled, Source={x:Reference TypesList}}" TargetType="Label">
+                                                    <Setter Property="Opacity" Value=".5" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </Border>
+                            </DataTemplate>
+                        </sflistView:SfListView.ItemTemplate>
+                        <sflistView:SfListView.SelectedItemTemplate>
+                            <DataTemplate x:DataType="Dtos:ProductTypeDto">
+                                <Border
+                                    Padding="0,0,0,2"
+                                    BackgroundColor="SkyBlue"
+                                    StrokeShape="RoundRectangle 5">
+
+                                    <Border
+                                        Margin="0,0,0,5"
+                                        Padding="10,0"
+                                        BackgroundColor="SeaGreen"
+                                        MinimumHeightRequest="45"
+                                        StrokeShape="RoundRectangle 5"
+                                        StrokeThickness="0">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Path=BindingContext.AddTypeCommand, Source={x:Reference TypesList}}"
+                                                CommandParameter="{Binding .}"
+                                                NumberOfTapsRequired="1" />
+                                        </Border.GestureRecognizers>
+                                        <Label
+                                            Style="{StaticResource LabelBaseStyle}"
+                                            Text="{Binding Name, UpdateSourceEventName=PropertyChanged}"
+                                            TextColor="White" />
+                                    </Border>
+                                </Border>
+                            </DataTemplate>
+                        </sflistView:SfListView.SelectedItemTemplate>
+
+                    </sflistView:SfListView>
+                </Grid>
+                <Grid
+                    Grid.Column="2"
+                    IsVisible="{Binding PortionTypes, Converter={StaticResource CountGreaterThanZeroConverter}}"
+                    RowDefinitions="45,*"
+                    RowSpacing="5">
+                    <Grid.IsEnabled>
+                        <MultiBinding Converter="{StaticResource AndBooleanConverter}">
+                            <Binding Path="IsTypeSelected" />
+                            <Binding Path="IsSizeSelected" />
+                        </MultiBinding>
+                    </Grid.IsEnabled>
+                    <Grid.Triggers />
+                    <Border Grid.Row="0" Style="{StaticResource ItmeListTitleStyle}">
+                        <Label Style="{StaticResource LabelBaseStyle}" Text="Portion" />
+
+                    </Border>
+                    <components:PortionsView
+                        x:Name="portionView"
+                        Grid.Row="1"
+                        VerticalOptions="StartAndExpand" />
+                </Grid>
+                <Grid Grid.Column="3">
+                    <Grid.IsEnabled>
+                        <MultiBinding Converter="{StaticResource AndBooleanConverter}">
+                            <Binding Path="IsTypeSelected" />
+                            <Binding Path="IsSizeSelected" />
+                        </MultiBinding>
+                    </Grid.IsEnabled>
+
+                    <components:ToppingCategoriesView x:Name="toppingCatView" />
+                </Grid>
+            </Grid>
+            <Border
+                Grid.Row="1"
+                Margin="0,5,0,0"
+                BackgroundColor="Gray"
+                HeightRequest="2"
+                Stroke="Gray" />
+            <Grid Grid.Row="2">
+                <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource AndBooleanConverter}">
+                        <Binding Path="IsTypeSelected" />
+                        <Binding Path="IsSizeSelected" />
+                    </MultiBinding>
+                </Grid.IsVisible>
+                <Grid IsVisible="{Binding SelectedToppingCategories, Converter={StaticResource CountGreaterThanZeroConverter}}">
+                    <components:AfixView IsVisible="{Binding IsAffixesVisible}" />
+                </Grid>
+            </Grid>
+            <Border
+                Grid.Row="3"
+                Margin="0,0,0,5"
+                BackgroundColor="Gray"
+                HeightRequest="2"
+                Stroke="Gray" />
+            <Grid Grid.Row="4">
+                <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource AndBooleanConverter}">
+                        <Binding Path="IsTypeSelected" />
+                        <Binding Path="IsSizeSelected" />
+                    </MultiBinding>
+                </Grid.IsVisible>
+                <components:ToppingsView />
+            </Grid>
+        </Grid>
+    <Grid x:Name="modiferMainGrid" Grid.Row="2" RowDefinitions="auto,auto,auto,*" IsVisible="True">
+      <Grid.Resources>
+        <Style TargetType="sflistView:ListViewItem">
+          <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+              <VisualStateGroup>
+                <VisualState x:Name="Normal">
+                  <VisualState.Setters>
+                    <Setter Property="Background" Value="Transparent" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="PointerOver">
+                  <VisualState.Setters>
+                    <Setter Property="Background" Value="LightSkyBlue" />
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateGroupList>
+          </Setter>
+        </Style>
+        <Style x:Key="ItmeListTitleStyle" TargetType="Border">
+          <Setter Property="Margin" Value="2,0" />
+          <Setter Property="Padding" Value="5.0" />
+          <Setter Property="Stroke" Value="Gray" />
+          <Setter Property="StrokeThickness" Value="1" />
+        </Style>
+        <Style x:Key="TabButtonStyle" TargetType="buttons:SfButton" BasedOn="{StaticResource IconButton}">
+          <Setter Property="HeightRequest" Value="40" />
+          <Setter Property="Stroke" Value="Black" />
+          <Setter Property="StrokeThickness" Value="1" />
+          <Setter Property="Background" Value="LightGray" />
+        </Style>
+      </Grid.Resources>
+      <!-- Tab Buttons Row -->
+      <Grid Grid.Row="0" ColumnDefinitions="auto,auto,auto,auto,auto" ColumnSpacing="5">
+        <buttons:SfButton
+          Grid.Column="0"
+          Command="{Binding SelectTabCommand}"
+          CommandParameter="0"
+          IsVisible="{Binding SelectedProduct.AssignedSizes, Converter={StaticResource CountGreaterThanZeroConverter}}"
+          Text="Sizes">
+          <buttons:SfButton.Style>
+            <Style TargetType="buttons:SfButton" BasedOn="{StaticResource TabButtonStyle}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="buttons:SfButton" Value="0">
+                  <Setter Property="Background" Value="SkyBlue" />
+                  <Setter Property="TextColor" Value="White" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </buttons:SfButton.Style>
+        </buttons:SfButton>
+        
+        <buttons:SfButton
+          Grid.Column="1"
+          Command="{Binding SelectTabCommand}"
+          CommandParameter="1"
+          IsEnabled="{Binding IsTypesTabEnabled}"
+          IsVisible="{Binding SelectedProduct.ProductTypes, Converter={StaticResource CountGreaterThanZeroConverter}}"
+          Text="Types">
+          <buttons:SfButton.Style>
+            <Style TargetType="buttons:SfButton" BasedOn="{StaticResource TabButtonStyle}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="buttons:SfButton" Value="1">
+                  <Setter Property="Background" Value="SkyBlue" />
+                  <Setter Property="TextColor" Value="White" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </buttons:SfButton.Style>
+        </buttons:SfButton>
+        
+        <buttons:SfButton
+          Grid.Column="2"
+          Command="{Binding SelectTabCommand}"
+          IsVisible="{Binding SelectedProduct.PortionTypes, Converter={StaticResource CountGreaterThanZeroConverter}}"
+          CommandParameter="2"
+          Text="Portions"
+          IsEnabled="{Binding IsPortionsTabEnabled}">
+          <buttons:SfButton.Style>
+            <Style TargetType="buttons:SfButton" BasedOn="{StaticResource TabButtonStyle}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="buttons:SfButton" Value="2">
+                  <Setter Property="Background" Value="SkyBlue" />
+                  <Setter Property="TextColor" Value="White" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </buttons:SfButton.Style>
+        </buttons:SfButton>
+        
+        <buttons:SfButton
+          Grid.Column="3"
+          Command="{Binding SelectTabCommand}"
+          IsVisible="{Binding ShouldShowModifierGroupsTab}"
+          CommandParameter="3"
+          Text="Modifier Groups"
+          IsEnabled="{Binding IsModifierGroupsTabEnabled}">
+          <buttons:SfButton.Style>
+            <Style TargetType="buttons:SfButton" BasedOn="{StaticResource TabButtonStyle}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="buttons:SfButton" Value="3">
+                  <Setter Property="Background" Value="SkyBlue" />
+                  <Setter Property="TextColor" Value="White" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </buttons:SfButton.Style>
+        </buttons:SfButton>
+        
+        <buttons:SfButton
+          Grid.Column="4"
+          Command="{Binding SelectTabCommand}"
+           IsVisible="{Binding ShouldShowModifiersTab}"
+          CommandParameter="4"
+          Text="Modifiers"
+          IsEnabled="{Binding IsModifiersTabEnabled}">
+          <buttons:SfButton.Style>
+            <Style TargetType="buttons:SfButton" BasedOn="{StaticResource TabButtonStyle}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="buttons:SfButton" Value="4">
+                  <Setter Property="Background" Value="SkyBlue" />
+                  <Setter Property="TextColor" Value="White" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </buttons:SfButton.Style>
+        </buttons:SfButton>
+      </Grid>
+      <Border
+        Grid.Row="1"
+        Margin="0,5,0,0"
+        BackgroundColor="Gray"
+        HeightRequest="2"
+        Stroke="Gray" />
+      
+      <!-- Affix Section (shown only for Modifiers tab - tab 4) -->
+      <Grid Grid.Row="2">
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource AndBooleanConverter}">
+            <Binding Path="IsTypeSelected" />
+            <Binding Path="IsSizeSelected" />
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid RowDefinitions="auto,auto" IsVisible="{Binding IsAffixesVisible}">
+          <Grid.Triggers>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="0">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="1">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="2">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="3">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <!-- Only show on Modifiers tab (4) -->
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="4">
+              <Setter Property="IsVisible" Value="True" />
+            </DataTrigger>
+          </Grid.Triggers>
+          <components:AfixView IsVisible="{Binding IsAffixesVisible}" />
+          <Border
+            Grid.Row="1"
+            Margin="0,0,0,5"
+            IsVisible="{Binding IsAffixesVisible}"
+            BackgroundColor="Gray"
+            HeightRequest="2"
+            Stroke="Gray" />
+        </Grid>
+      </Grid>
+      
+      <!-- Tab Content Area -->
+      <!-- Tab Content Area -->
+      <Grid
+        Grid.Row="3">
+        
+        <!-- Tab 0: Sizes -->
+        <sflistView:SfListView
+          x:Name="SizeList"
+          AutoFitMode="DynamicHeight"
+          ItemSize="200"
+          ItemSpacing="0"
+          ItemsSource="{Binding SelectedProduct.AssignedSizes}"
+          ScrollBarVisibility="Default"
+          SelectedItem="{Binding SelectedSize, Mode=OneWay}">
+          <sflistView:SfListView.Triggers>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="0">
+              <Setter Property="IsVisible" Value="True" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="1">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="2">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="3">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="4">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+          </sflistView:SfListView.Triggers>
+          <sflistView:SfListView.ItemsLayout>
+            <sflistView:GridLayout x:Name="SizeGridLayout"/>
+          </sflistView:SfListView.ItemsLayout>
+          <sflistView:SfListView.ItemTemplate>
+            <DataTemplate x:DataType="Dtos:AssignedSizeDto">
+              <Border Padding="0,0,0,5" StrokeShape="RoundRectangle 5">
+                <Border
+                          Margin="0"
+                          Padding="10,0"
+                          BackgroundColor="{Binding Size.BackColor}"
+                          MinimumHeightRequest="45"
+                          StrokeShape="RoundRectangle 5"
+                          StrokeThickness="0">
+                  <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Path=BindingContext.ModifierDoubleTappedCommand, Source={x:Reference SizeList}}" NumberOfTapsRequired="2" />
+                    <TapGestureRecognizer
+                                  Command="{Binding Path=BindingContext.AddSizeCommand, Source={x:Reference SizeList}}"
+                                  CommandParameter="{Binding .}"
+                                  NumberOfTapsRequired="1" />
+                  </Border.GestureRecognizers>
+                  <Label
+                              Style="{StaticResource LabelBaseStyle}"
+                              Text="{Binding Size.Name, UpdateSourceEventName=PropertyChanged}"
+                              TextColor="{Binding Size.ForeColor}" />
+                </Border>
+              </Border>
+            </DataTemplate>
+          </sflistView:SfListView.ItemTemplate>
+          <sflistView:SfListView.SelectedItemTemplate>
+            <DataTemplate x:DataType="Dtos:AssignedSizeDto">
+              <Border
+                      Padding="0,0,0,2"
+                      BackgroundColor="SkyBlue"
+                      StrokeShape="RoundRectangle 5">
+
+                <Border
+                          Margin="0,0,0,5"
+                          Padding="10,0"
+                          BackgroundColor="{Binding Size.BackColor}"
+                          MinimumHeightRequest="45"
+                          StrokeShape="RoundRectangle 5"
+                          StrokeThickness="0">
+                  <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Path=BindingContext.ModifierDoubleTappedCommand, Source={x:Reference SizeList}}" NumberOfTapsRequired="2" />
+                    <TapGestureRecognizer
+                                  Command="{Binding Path=BindingContext.AddSizeCommand, Source={x:Reference SizeList}}"
+                                  CommandParameter="{Binding .}"
+                                  NumberOfTapsRequired="1" />
+                  </Border.GestureRecognizers>
+                  <Label
+                              Style="{StaticResource LabelBaseStyle}"
+                              Text="{Binding Size.Name, UpdateSourceEventName=PropertyChanged}"
+                              TextColor="{Binding Size.ForeColor}" />
+                </Border>
+              </Border>
+            </DataTemplate>
+          </sflistView:SfListView.SelectedItemTemplate>
+        </sflistView:SfListView>
+        
+        <!-- Tab 1: Types -->
+        <sflistView:SfListView
+          x:Name="TypesListTab"
+          AutoFitMode="DynamicHeight"
+          IsEnabled="{Binding IsSizeSelected}"
+          ItemSize="200"
+          ItemSpacing="0"
+          ItemsSource="{Binding SelectedProduct.ProductTypes}"
+          ScrollBarVisibility="Default"
+          SelectedItem="{Binding SelectedType, Mode=OneWay}">
+          <sflistView:SfListView.ItemsLayout>
+            <sflistView:GridLayout x:Name="TypesGridLayout"/>
+          </sflistView:SfListView.ItemsLayout>
+          <sflistView:SfListView.Triggers>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="0">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="1">
+              <Setter Property="IsVisible" Value="True" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="2">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="3">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="sflistView:SfListView" Value="4">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+          </sflistView:SfListView.Triggers>
+          <sflistView:SfListView.ItemTemplate>
+            <DataTemplate x:DataType="Dtos:ProductTypeDto">
+              <Border Padding="0,0,0,5" StrokeShape="RoundRectangle 5">
+                <Border
+                  Margin="0"
+                  Padding="10,0"
+                  BackgroundColor="SeaGreen"
+                  MinimumHeightRequest="45"
+                  StrokeShape="RoundRectangle 5"
+                  StrokeThickness="0">
+                  <Border.GestureRecognizers>
+                    <TapGestureRecognizer
+                      Command="{Binding Path=BindingContext.AddTypeCommand, Source={x:Reference TypesListTab}}"
+                      CommandParameter="{Binding .}"
+                      NumberOfTapsRequired="1" />
+                  </Border.GestureRecognizers>
+                  <Label
+                    Style="{StaticResource LabelBaseStyle}"
+                    Text="{Binding Name, UpdateSourceEventName=PropertyChanged}"
+                    TextColor="White" />
+                </Border>
+              </Border>
+            </DataTemplate>
+          </sflistView:SfListView.ItemTemplate>
+          <sflistView:SfListView.SelectedItemTemplate>
+            <DataTemplate x:DataType="Dtos:ProductTypeDto">
+              <Border
+                Padding="0,0,0,2"
+                BackgroundColor="SkyBlue"
+                StrokeShape="RoundRectangle 5">
+                <Border
+                  Margin="0,0,0,5"
+                  Padding="10,0"
+                  BackgroundColor="SeaGreen"
+                  MinimumHeightRequest="45"
+                  StrokeShape="RoundRectangle 5"
+                  StrokeThickness="0">
+                  <Border.GestureRecognizers>
+                    <TapGestureRecognizer
+                      Command="{Binding Path=BindingContext.AddTypeCommand, Source={x:Reference TypesListTab}}"
+                      CommandParameter="{Binding .}"
+                      NumberOfTapsRequired="1" />
+                  </Border.GestureRecognizers>
+                  <Label
+                    Style="{StaticResource LabelBaseStyle}"
+                    Text="{Binding Name, UpdateSourceEventName=PropertyChanged}"
+                    TextColor="White" />
+                </Border>
+              </Border>
+            </DataTemplate>
+          </sflistView:SfListView.SelectedItemTemplate>
+        </sflistView:SfListView>
+        
+        <!-- Tab 2: Portions -->
+        <Grid IsEnabled="{Binding IsPortionsTabEnabled}">
+          <Grid.Triggers>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="0">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="1">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="2">
+              <Setter Property="IsVisible" Value="True" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="3">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="4">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+          </Grid.Triggers>
+          <components:PortionsView x:Name="portionViewTab"  />
+        </Grid>
+        
+        <!-- Tab 3: Modifier Groups -->
+        <Grid IsEnabled="{Binding IsModifierGroupsTabEnabled}">
+          <Grid.Triggers>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="0">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="1">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="2">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="3">
+              <Setter Property="IsVisible" Value="True" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="4">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+          </Grid.Triggers>
+          <components:ToppingCategoriesView x:Name="toppingCatViewTab" />
+        </Grid>
+        
+        <!-- Tab 4: Modifiers -->
+        <Grid IsEnabled="{Binding IsModifiersTabEnabled}">
+          <Grid.Triggers>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="0">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="1">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="2">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="3">
+              <Setter Property="IsVisible" Value="False" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding SelectedTabIndex}" TargetType="Grid" Value="4">
+              <Setter Property="IsVisible" Value="True" />
+            </DataTrigger>
+          </Grid.Triggers>
+          <components:ToppingsView />
+        </Grid>
+      </Grid>
+    </Grid>
+    </Grid>
+</ContentView>

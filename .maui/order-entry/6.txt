@@ -1,0 +1,1 @@
+when selected a modfieri grpu, we show the modifiers to select it

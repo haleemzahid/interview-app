@@ -1,0 +1,3 @@
+We ask to select the customer for whome we want the order. The input is autocomplete, if 
+there is a customer we select that, otherwise we just enter the customer name
+and a new customer is created

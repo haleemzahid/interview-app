@@ -1,0 +1,1 @@
+This view shows when we select a product

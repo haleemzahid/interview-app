@@ -1,0 +1,175 @@
+This is the main page. As you can see we have loaded all the menus, menu products. 
+
+if there are alot of menu products, we show the other in the left side, so its horizontal layout
+You can see at the top of the cart, we show the service methods
+
+Sample code:
+
+
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="OrderEntry.Views.OrderEntryView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+    xmlns:comp="clr-namespace:OrderEntry.Components"
+    xmlns:conv="clr-namespace:OrderEntry.Converters"
+    xmlns:editors="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:model="clr-namespace:Data.Models.Entities.Menu;assembly=Data.Models"
+    xmlns:sflistView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
+    xmlns:vm="clr-namespace:OrderEntry.ViewModels.MenuServiceVMpartialClasses"
+    xmlns:customControls="clr-namespace:OrderEntry.CustomControls"
+    x:DataType="vm:MenuServiceViewModel"
+    Appearing="ContentPage_Appearing"
+    Disappearing="ContentPage_Disappearing"
+    Loaded="ContentPage_Loaded"
+    Shell.BackButtonBehavior="{BackButtonBehavior IsEnabled=False,
+                                                  IsVisible=False}"
+    Shell.NavBarIsVisible="False">
+    <ContentPage.Resources>
+        <conv:BooleanToRebooleanConverter x:Key="BooleanToRebooleanConverter" />
+        <conv:ViewToVisibiltyConverter x:Key="ViewToVisibiltyConverter" />
+        <Style x:Key="IconButton" TargetType="buttons:SfButton">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="ImageSize" Value="25" />
+            <Setter Property="ShowIcon" Value="True" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style
+            x:Key="IconButtonWhite"
+            BasedOn="{StaticResource IconButton}"
+            TargetType="buttons:SfButton">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="15" />
+            <Setter Property="TextColor" Value="Black" />
+        </Style>
+        <Style
+            x:Key="CalculaterButtonStyle"
+            BasedOn="{StaticResource IconButtonWhite}"
+            TargetType="buttons:SfButton">
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="HeightRequest" Value="60" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+
+    </ContentPage.Resources>
+    <Grid>
+        <customControls:CustomBorder
+            ConfigName="OrderEntryBackground"
+            Grid.Column="1"
+            Margin="0,0,0,0"
+            Padding="0"
+            StrokeShape="RoundRectangle 10,10,10,10">
+
+
+            <Grid Margin="0">
+                <Grid.Triggers>
+
+                    <DataTrigger
+                        Binding="{Binding IsRTL}"
+                        TargetType="Grid"
+                        Value="true">
+                        <Setter Property="ColumnDefinitions" Value="{OnIdiom Desktop='2*,330', Tablet='2.4*,520'}" />
+                    </DataTrigger>
+                    <DataTrigger
+                        Binding="{Binding IsRTL}"
+                        TargetType="Grid"
+                        Value="false">
+                        <Setter Property="ColumnDefinitions" Value="{OnIdiom Desktop='330,2*', Tablet='520,2.4*'}" />
+                    </DataTrigger>
+                </Grid.Triggers>
+
+                <ActivityIndicator
+                    Grid.ColumnSpan="3"
+                    HeightRequest="{OnIdiom Tablet=60}"
+                    IsRunning="{Binding IsLoading}"
+                    WidthRequest="{OnIdiom Tablet=60}" />
+                <!--  Column 0  -->
+                <Grid>
+                    <Grid.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsRTL}"
+                            TargetType="Grid"
+                            Value="true">
+                            <Setter Property="Grid.Column" Value="1" />
+                        </DataTrigger>
+                    </Grid.Triggers>
+                    <comp:InvoiceMenu IsVisible="{Binding ViewsVisible, Converter={StaticResource ViewToVisibiltyConverter}, ConverterParameter={x:Static vm:Views.InvoiceMenu}}" />
+                    <comp:PaymentMenu IsVisible="{Binding ViewsVisible, Converter={StaticResource ViewToVisibiltyConverter}, ConverterParameter={x:Static vm:Views.PaymentMenu}}" />
+                </Grid>
+
+                <!--  Column 1  -->
+                <Grid Grid.Column="1">
+                    <Grid.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsRTL}"
+                            TargetType="Grid"
+                            Value="true">
+                            <Setter Property="Grid.Column" Value="0" />
+                        </DataTrigger>
+                    </Grid.Triggers>
+
+                    <Grid>
+                        <!--  Products View  -->
+                        <Grid
+                            x:Name="ProductViewGrid"
+                            Grid.Column="1"
+                            IsVisible="{Binding ViewsVisible, Converter={StaticResource ViewToVisibiltyConverter}, ConverterParameter={x:Static vm:Views.Product}}" />
+                        <!--  Cart View  -->
+                        <Grid
+                            x:Name="CartViewGrid"
+                            Grid.Column="1"
+                            IsVisible="{Binding ViewsVisible, Converter={StaticResource ViewToVisibiltyConverter}, ConverterParameter={x:Static vm:Views.Cart}}">
+                            <comp:CartView />
+                        </Grid>
+                        <!--  Modifier View  -->
+                        <Grid
+                            x:Name="ModifierView"
+                            Grid.Column="1"
+                            IsVisible="{Binding ViewsVisible, Converter={StaticResource ViewToVisibiltyConverter}, ConverterParameter={x:Static vm:Views.AddProduct}}"
+                            PropertyChanged="Modifier_Grid_PropertyChanged">
+                            <comp:ModifiresView />
+                        </Grid>
+                        <!--  Discount View  -->
+                        <Grid
+                            x:Name="DiscountView"
+                            Grid.Column="1"
+                            IsVisible="{Binding ViewsVisible, Converter={StaticResource ViewToVisibiltyConverter}, ConverterParameter={x:Static vm:Views.Discount}}">
+                            <comp:DiscountView IsVisible="{Binding ViewsVisible, Converter={StaticResource ViewToVisibiltyConverter}, ConverterParameter={x:Static vm:Views.Discount}}" />
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </customControls:CustomBorder>
+
+        <Grid
+            x:Name="swipecardOverlayScreen"
+            Background="White"
+            ColumnDefinitions="*,*,*"
+            IsVisible="{Binding ShowCardSwipeOverlay}"
+            RowDefinitions="*,*,*">
+            <Grid
+                Grid.Row="1"
+                Grid.Column="1"
+                RowDefinitions="*,auto,auto">
+                <Image Source="swipecard.png" />
+                <Label
+                    Grid.Row="1"
+                    Margin="0,10"
+                    HorizontalOptions="Center"
+                    Text="Please have the customer swipe their card" />
+                <ActivityIndicator Grid.Row="2" IsRunning="True" />
+
+            </Grid>
+        </Grid>
+
+
+
+    </Grid>
+</ContentPage>
+
+
+ALL THE VIEWS USED HERE CODE ARE PROVIDED IN 3.[VIEW NAME]

@@ -1,0 +1,133 @@
+
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="OrderEntry.Components.DiscountView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Dtos="clr-namespace:PennPOS.Maui.Shared.Dtos;assembly=PennPOS.Maui.Shared"
+    xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
+    xmlns:inputLayout="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+    xmlns:model="clr-namespace:Data.Models.Entities.OrderEntry;assembly=Data.Models"
+    xmlns:sflistView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
+    xmlns:vm="clr-namespace:OrderEntry.ViewModels.MenuServiceVMpartialClasses"
+    x:DataType="vm:MenuServiceViewModel">
+    <ContentView.Resources>
+
+
+        <Style x:Key="IconButton" TargetType="buttons:SfButton">
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="ImageSize" Value="25" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="ShowIcon" Value="True" />
+            <Setter Property="TextColor" Value="Black" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style
+            x:Key="IconButtonWhite"
+            BasedOn="{StaticResource IconButton}"
+            TargetType="buttons:SfButton">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="TextColor" Value="Black" />
+        </Style>
+        <Style
+            x:Key="CalculaterButtonStyle"
+            BasedOn="{StaticResource IconButtonWhite}"
+            TargetType="buttons:SfButton">
+            <Setter Property="FontSize" Value="Title" />
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+    </ContentView.Resources>
+    <Grid RowDefinitions="50,*" RowSpacing="5">
+        <Grid
+            Margin="0,5,5,0"
+            ColumnDefinitions="*,auto,auto,auto"
+            ColumnSpacing="5"
+            HeightRequest="40"
+            VerticalOptions="Center">
+
+            <buttons:SfButton
+                Grid.Column="1"
+                Command="{Binding ClearInvoiceDiscountCommand}"
+                HorizontalOptions="End"
+                Style="{StaticResource IconButtonWhite}"
+                Text="Clear Invoice Discount" />
+            <buttons:SfButton
+                Grid.Column="2"
+                Command="{Binding ClearItemDiscountCommand}"
+                HorizontalOptions="End"
+                Style="{StaticResource IconButtonWhite}"
+                Text="Clear Item Discount" />
+            <buttons:SfButton
+                Grid.Column="3"
+                Background="Gray"
+                Command="{Binding DiscountDoneCommand}"
+                HorizontalOptions="End"
+                Style="{StaticResource IconButton}"
+                Text="Done"
+                TextColor="White" />
+        </Grid>
+        <Grid Grid.Row="1">
+            <sflistView:SfListView
+                x:Name="lstDiscounts"
+                Margin="0,0,0,0"
+                AutoFitMode="DynamicHeight"
+                ItemSize="60"
+                ItemSpacing="2"
+                ItemsSource="{Binding Discounts}"
+                MinimumHeightRequest="630"
+                SelectedItem="{Binding SelectedDiscount, UpdateSourceEventName=PropertyChanged}"
+                SelectionBackground="Gray"
+                VerticalOptions="StartAndExpand">
+                <sflistView:SfListView.ItemsLayout>
+                    <sflistView:GridLayout SpanCount="{OnIdiom Tablet=4, Desktop=4}" />
+                </sflistView:SfListView.ItemsLayout>
+
+                <sflistView:SfListView.ItemTemplate>
+
+                    <DataTemplate x:DataType="Dtos:InvoiceDiscountDto">
+                        <Border
+                            Grid.Row="2"
+                            Margin="0"
+                            Padding="10,0"
+                            BackgroundColor="{Binding BackColor}"
+                            MinimumHeightRequest="45"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 5"
+                            StrokeThickness="0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Path=BindingContext.InvoiceDiscountItemTappedCommand, Source={x:Reference lstDiscounts}}"
+                                    CommandParameter="{Binding .}"
+                                    NumberOfTapsRequired="2" />
+                                <TapGestureRecognizer
+                                    Command="{Binding Path=BindingContext.DiscountChangedCommand, Source={x:Reference lstDiscounts}}"
+                                    CommandParameter="{Binding .}"
+                                    NumberOfTapsRequired="1" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,auto">
+                                <Label
+                                    Grid.Column="0"
+                                    Padding="0,0,0,0"
+                                    FontSize="10"
+                                    Text="{Binding Name}"
+                                    TextColor="{Binding ForeColor}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    Padding="0,0,0,0"
+                                    FontSize="10"
+                                    HorizontalTextAlignment="Start"
+                                    Text="{Binding DiscountPercentage}"
+                                    TextColor="{Binding ForeColor}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </sflistView:SfListView.ItemTemplate>
+            </sflistView:SfListView>
+        </Grid>
+    </Grid>
+</ContentView>
