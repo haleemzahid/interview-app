@@ -149,3 +149,56 @@ export interface InterviewProgress {
 }
 
 export type NavigationTab = 'interview' | 'tests' | 'notes' | 'export'
+
+// =============================================================================
+// Builder Types (for Interview Config Editor)
+// =============================================================================
+
+/**
+ * Draft question used in the builder (may have incomplete data)
+ */
+export interface DraftFrage {
+  id: string
+  text: string
+  typ: FrageTyp
+  optionen?: string[]
+  followup?: FollowUpMap
+  bedingung?: string
+}
+
+/**
+ * Draft category used in the builder
+ */
+export interface DraftKategorie {
+  id: string // Internal ID for drag/drop and React keys
+  titel: string
+  fragen: DraftFrage[]
+}
+
+/**
+ * Draft interview config used in the builder
+ */
+export interface DraftInterviewConfig {
+  kategorien: DraftKategorie[]
+}
+
+/**
+ * Validation error for a specific field
+ */
+export interface ValidationError {
+  path: string // e.g., "kategorien[0].fragen[1].text"
+  message: string
+}
+
+/**
+ * Result of validating a draft config
+ */
+export interface ValidationResult {
+  valid: boolean
+  errors: ValidationError[]
+}
+
+/**
+ * Builder navigation tab
+ */
+export type BuilderTab = 'editor' | 'preview' | 'json'

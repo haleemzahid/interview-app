@@ -331,7 +331,7 @@ export const interviewMachine = setup({
       currentQuestionIndex: ({ context }) => {
         if (!context.session) return 0
 
-        // If was in follow-up, stay on same question (follow-up cleared by answer)
+        // If there's an active follow-up, stay on same question
         if (context.session.activeFollowUp) {
           return context.currentQuestionIndex
         }
@@ -348,7 +348,8 @@ export const interviewMachine = setup({
         return {
           ...context.session,
           currentQuestionIndex: newIndex,
-          activeFollowUp: null, // Clear any active follow-up
+          // Don't clear activeFollowUp here - it should only be cleared by
+          // answering the follow-up, skipping it, or going back
           updatedAt: new Date().toISOString(),
         }
       },
@@ -602,6 +603,22 @@ export const interviewMachine = setup({
         RESET: {
           target: 'loaded',
           actions: 'resetSession',
+        },
+        // Allow navigation to review answers after completing
+        NEXT_QUESTION: [
+          {
+            guard: 'hasNextQuestion',
+            actions: ['goToNextQuestion', 'saveToLocalStorage'],
+          },
+        ],
+        PREV_QUESTION: [
+          {
+            guard: 'hasPrevQuestion',
+            actions: ['goToPrevQuestion', 'saveToLocalStorage'],
+          },
+        ],
+        GO_TO_QUESTION: {
+          actions: ['goToQuestion', 'saveToLocalStorage'],
         },
       },
     },

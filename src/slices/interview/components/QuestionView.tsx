@@ -484,23 +484,24 @@ export function QuestionView() {
         </div>
       </div>
 
-      {/* Navigation footer - hide when in follow-up (follow-up has its own buttons) */}
-      {!activeFollowUp && (
-        <div className="flex items-center justify-between border-t border-gray-200 px-8 py-4">
-          <button
-            onClick={handlePrev}
-            disabled={progress.current === 1}
-            className={clsx(
-              'flex items-center gap-2 rounded-lg px-4 py-2 transition-colors',
-              progress.current === 1
-                ? 'cursor-not-allowed text-gray-300'
-                : 'text-gray-600 hover:bg-gray-100'
-            )}
-          >
-            <ChevronLeft className="h-5 w-5" />
-            Zurück
-          </button>
+      {/* Navigation footer */}
+      <div className="flex items-center justify-between border-t border-gray-200 px-8 py-4">
+        <button
+          onClick={handlePrev}
+          disabled={progress.current === 1}
+          className={clsx(
+            'flex items-center gap-2 rounded-lg px-4 py-2 transition-colors',
+            progress.current === 1
+              ? 'cursor-not-allowed text-gray-300'
+              : 'text-gray-600 hover:bg-gray-100'
+          )}
+        >
+          <ChevronLeft className="h-5 w-5" />
+          Zurück
+        </button>
 
+        {/* Hide next/finish buttons when in follow-up (follow-up has its own buttons) */}
+        {!activeFollowUp && (
           <div className="flex items-center gap-2">
             {isLastQuestion ? (
               <button
@@ -520,8 +521,8 @@ export function QuestionView() {
               </button>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

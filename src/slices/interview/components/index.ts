@@ -5,3 +5,6 @@ export { QuestionView } from './QuestionView'
 export { NotesView } from './NotesView'
 export { ExportView } from './ExportView'
 export { TestsView } from './TestsView'
+
+// Builder components
+export { InterviewBuilderPage } from './builder'

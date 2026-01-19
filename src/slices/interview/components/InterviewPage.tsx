@@ -7,7 +7,8 @@ import { NotesView } from './NotesView'
 import { ExportView } from './ExportView'
 import { TestsView } from './TestsView'
 import type { NavigationTab, InterviewConfig, InterviewSession } from '../types'
-import { Upload, FolderOpen, AlertCircle } from 'lucide-react'
+import { Upload, FolderOpen, AlertCircle, Wrench } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 
 // Type for saved data in localStorage
 interface SavedSessionData {
@@ -119,13 +120,22 @@ export function InterviewPage() {
             <p className="mt-2 text-gray-500">
               Importieren Sie eine JSON-Datei, um zu beginnen
             </p>
-            <button
-              onClick={handleImportConfig}
-              className="mx-auto mt-6 flex items-center gap-2 rounded-lg bg-teal-600 px-6 py-3 font-medium text-white transition-colors hover:bg-teal-700"
-            >
-              <Upload className="h-5 w-5" />
-              Fragebogen importieren
-            </button>
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <button
+                onClick={handleImportConfig}
+                className="flex items-center gap-2 rounded-lg bg-teal-600 px-6 py-3 font-medium text-white transition-colors hover:bg-teal-700"
+              >
+                <Upload className="h-5 w-5" />
+                Fragebogen importieren
+              </button>
+              <Link
+                to="/builder"
+                className="flex items-center gap-2 rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                <Wrench className="h-5 w-5" />
+                Fragebogen erstellen / bearbeiten
+              </Link>
+            </div>
           </div>
         </div>
       )
