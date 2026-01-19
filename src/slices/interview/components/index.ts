@@ -8,3 +8,6 @@ export { TestsView } from './TestsView'
 
 // Builder components
 export { InterviewBuilderPage } from './builder'
+
+// Archive components
+export { ArchivePage } from './archive'

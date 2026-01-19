@@ -16,6 +16,12 @@
     "fs:default",
     "fs:allow-write",
     "fs:allow-write-text-file",
+    "fs:allow-read",
+    "fs:allow-read-text-file",
+    "fs:allow-exists",
+    "fs:allow-mkdir",
+    "fs:allow-read-dir",
+    "fs:allow-remove",
     "fs:allow-download-write",
     "fs:allow-download-write-recursive",
     "fs:allow-document-write",
@@ -23,6 +29,10 @@
     "fs:allow-desktop-write",
     "fs:allow-desktop-write-recursive",
     "fs:allow-home-write",
-    "fs:allow-home-write-recursive"
+    "fs:allow-home-write-recursive",
+    "fs:allow-appdata-read",
+    "fs:allow-appdata-read-recursive",
+    "fs:allow-appdata-write",
+    "fs:allow-appdata-write-recursive"
   ]
 }

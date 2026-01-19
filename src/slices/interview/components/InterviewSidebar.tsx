@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { useInterviewMachine } from '../machines'
 import type { NavigationTab } from '../types'
 import {
@@ -7,8 +9,12 @@ import {
   FileDown,
   ChevronRight,
   PlusCircle,
+  List,
+  ChevronDown,
+  Archive,
 } from 'lucide-react'
 import { clsx } from 'clsx'
+import { CategoryNavigation } from './sidebar'
 
 interface InterviewSidebarProps {
   activeTab: NavigationTab
@@ -31,6 +37,7 @@ export function InterviewSidebar({
   onTabChange,
 }: InterviewSidebarProps) {
   const { session, progress, config, reset } = useInterviewMachine()
+  const [showCategoryNav, setShowCategoryNav] = useState(true)
 
   const handleNewInterview = () => {
     if (
@@ -98,6 +105,28 @@ export function InterviewSidebar({
             {progress.answeredCount} Fragen beantwortet
           </p>
         </div>
+      )}
+
+      {/* Category Navigation Toggle & Panel */}
+      {session && activeTab === 'interview' && (
+        <>
+          <button
+            onClick={() => setShowCategoryNav(!showCategoryNav)}
+            className="flex w-full items-center justify-between border-b border-gray-200 bg-white px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <List className="h-4 w-4" />
+              Fragen-Navigation
+            </span>
+            <ChevronDown
+              className={clsx(
+                'h-4 w-4 transition-transform duration-200',
+                showCategoryNav ? 'rotate-0' : '-rotate-90'
+              )}
+            />
+          </button>
+          {showCategoryNav && <CategoryNavigation />}
+        </>
       )}
 
       {/* Navigation */}
@@ -175,9 +204,19 @@ export function InterviewSidebar({
         </div>
       )}
 
-      {/* New Interview Button */}
-      {config && (
-        <div className="border-t border-gray-200 p-4">
+      {/* Actions */}
+      <div className="border-t border-gray-200 p-4 space-y-2">
+        {/* Archive Link */}
+        <Link
+          to="/archive"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+        >
+          <Archive className="h-4 w-4" />
+          Archiv
+        </Link>
+
+        {/* New Interview Button */}
+        {config && (
           <button
             onClick={handleNewInterview}
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
@@ -185,8 +224,8 @@ export function InterviewSidebar({
             <PlusCircle className="h-4 w-4" />
             Neues Interview
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </aside>
   )
 }

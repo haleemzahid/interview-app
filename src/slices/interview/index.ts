@@ -1,5 +1,5 @@
 // Components
-export { InterviewPage, InterviewBuilderPage } from './components'
+export { InterviewPage, InterviewBuilderPage, ArchivePage } from './components'
 
 // Machines
 export {
@@ -8,6 +8,15 @@ export {
   BuilderMachineProvider,
   useBuilderMachine,
 } from './machines'
+
+// Services
+export {
+  listArchivedInterviews,
+  saveInterviewToArchive,
+  loadArchivedInterview,
+  deleteArchivedInterview,
+  archiveExists,
+} from './services'
 
 // Types
 export type {
@@ -28,4 +37,7 @@ export type {
   ValidationResult,
   ValidationError,
   BuilderTab,
+  ArchivedInterview,
+  ArchivedInterviewMeta,
+  CategoryProgress,
 } from './types'

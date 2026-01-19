@@ -202,3 +202,48 @@ export interface ValidationResult {
  * Builder navigation tab
  */
 export type BuilderTab = 'editor' | 'preview' | 'json'
+
+// =============================================================================
+// Archive Types
+// =============================================================================
+
+/**
+ * Metadata for an archived interview (lightweight for listing)
+ */
+export interface ArchivedInterviewMeta {
+  id: string
+  patientName: string
+  patientDateOfBirth?: string
+  status: 'in_progress' | 'completed' | 'paused'
+  startedAt: string
+  updatedAt: string
+  completedAt?: string
+  questionCount: number
+  answeredCount: number
+  configName?: string
+}
+
+/**
+ * Full archived interview data (for loading/resuming)
+ */
+export interface ArchivedInterview {
+  meta: ArchivedInterviewMeta
+  session: InterviewSession
+  config: InterviewConfig
+}
+
+// =============================================================================
+// Category Navigation Types
+// =============================================================================
+
+/**
+ * Category progress information for sidebar display
+ */
+export interface CategoryProgress {
+  title: string
+  index: number
+  totalQuestions: number
+  answeredQuestions: number
+  visibleQuestions: FlattenedQuestion[]
+  isCurrentCategory: boolean
+}

@@ -13,6 +13,8 @@ import type {
   ManualFollowUp,
   InterviewProgress,
   ActiveFollowUp,
+  CategoryProgress,
+  ArchivedInterview,
 } from '../types'
 
 // =============================================================================
@@ -27,6 +29,7 @@ interface InterviewMachineContextValue {
   currentQuestion: FlattenedQuestion | null
   activeFollowUp: ActiveFollowUp | null
   progress: InterviewProgress
+  categoryProgress: CategoryProgress[]
   isInterviewing: boolean
   isCompleted: boolean
   isPaused: boolean
@@ -36,6 +39,7 @@ interface InterviewMachineContextValue {
   loadConfig: (config: InterviewConfig) => void
   startSession: (patientInfo: PatientInfo) => void
   resumeSession: (session: InterviewContext['session'], config: InterviewConfig) => void
+  loadFromArchive: (archived: ArchivedInterview) => void
   answerQuestion: (answer: Answer) => void
   answerFollowUp: (answer: Answer) => void
   nextQuestion: () => void
@@ -77,13 +81,13 @@ export function InterviewMachineProvider({
     () => actor.getSnapshot()
   )
 
-  // Autosave every 30 seconds while interviewing
+  // Autosave every 5 seconds while interviewing
   useEffect(() => {
     if (!state.matches('interviewing')) return
 
     const interval = setInterval(() => {
       actor.send({ type: 'AUTOSAVE' })
-    }, 30000)
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [state])
@@ -134,6 +138,33 @@ export function InterviewMachineProvider({
     }
   }
 
+  // Calculate category progress for sidebar navigation
+  const getCategoryProgress = (): CategoryProgress[] => {
+    const context = state.context
+    if (!context.config || !context.session) return []
+
+    const visibleQuestions = getVisibleQuestionsFromContext()
+    const currentQuestion = getCurrentQuestion()
+
+    return context.config.kategorien.map((kategorie, index) => {
+      const categoryQuestions = visibleQuestions.filter(
+        (q) => q.kategorie === kategorie.titel
+      )
+      const answeredCount = categoryQuestions.filter(
+        (q) => context.session?.answers[q.id]
+      ).length
+
+      return {
+        title: kategorie.titel,
+        index,
+        totalQuestions: categoryQuestions.length,
+        answeredQuestions: answeredCount,
+        visibleQuestions: categoryQuestions,
+        isCurrentCategory: currentQuestion?.kategorie === kategorie.titel,
+      }
+    })
+  }
+
   const value: InterviewMachineContextValue = {
     // Selectors
     config: state.context.config,
@@ -142,6 +173,7 @@ export function InterviewMachineProvider({
     currentQuestion: getCurrentQuestion(),
     activeFollowUp: state.context.session?.activeFollowUp || null,
     progress: getProgress(),
+    categoryProgress: getCategoryProgress(),
     isInterviewing: state.matches('interviewing'),
     isCompleted: state.matches('completed'),
     isPaused: state.matches('paused'),
@@ -154,6 +186,8 @@ export function InterviewMachineProvider({
     resumeSession: (session, config) => {
       if (session && config) actor.send({ type: 'RESUME_SESSION', session, config })
     },
+    loadFromArchive: (archived) =>
+      actor.send({ type: 'LOAD_FROM_ARCHIVE', archived }),
     answerQuestion: (answer) => actor.send({ type: 'ANSWER_QUESTION', answer }),
     answerFollowUp: (answer) => actor.send({ type: 'ANSWER_FOLLOW_UP', answer }),
     nextQuestion: () => actor.send({ type: 'NEXT_QUESTION' }),

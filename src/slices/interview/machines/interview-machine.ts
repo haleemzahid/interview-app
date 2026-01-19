@@ -7,7 +7,9 @@ import type {
   PatientInfo,
   ManualFollowUp,
   ActiveFollowUp,
+  ArchivedInterview,
 } from '../types'
+import { saveInterviewToArchive } from '../services/archive-service'
 
 // =============================================================================
 // Context Type
@@ -29,6 +31,7 @@ type InterviewEvent =
   | { type: 'LOAD_CONFIG'; config: InterviewConfig }
   | { type: 'START_SESSION'; patientInfo: PatientInfo }
   | { type: 'RESUME_SESSION'; session: InterviewSession; config: InterviewConfig }
+  | { type: 'LOAD_FROM_ARCHIVE'; archived: ArchivedInterview }
   | { type: 'RESET' }
   | { type: 'ANSWER_QUESTION'; answer: Answer }
   | { type: 'ANSWER_FOLLOW_UP'; answer: Answer }
@@ -43,6 +46,9 @@ type InterviewEvent =
   | { type: 'SAVE_SUCCESS' }
   | { type: 'SAVE_FAILURE'; error: string }
   | { type: 'GO_TO_QUESTION'; index: number }
+  | { type: 'ARCHIVE_SAVE' }
+  | { type: 'ARCHIVE_SAVE_SUCCESS' }
+  | { type: 'ARCHIVE_SAVE_FAILURE'; error: string }
 
 // =============================================================================
 // Helper Functions
@@ -176,6 +182,12 @@ const saveSession = fromPromise<void, { session: InterviewSession; config: Inter
   }
 )
 
+const saveToArchive = fromPromise<void, { session: InterviewSession; config: InterviewConfig }>(
+  async ({ input }) => {
+    await saveInterviewToArchive(input.session, input.config)
+  }
+)
+
 // =============================================================================
 // Machine Definition
 // =============================================================================
@@ -187,6 +199,7 @@ export const interviewMachine = setup({
   },
   actors: {
     saveSession,
+    saveToArchive,
   },
   guards: {
     hasNextQuestion: ({ context }) => {
@@ -273,6 +286,39 @@ export const interviewMachine = setup({
         return event.session.currentQuestionIndex
       },
     }),
+
+    loadFromArchive: assign({
+      config: ({ event }) => {
+        if (event.type !== 'LOAD_FROM_ARCHIVE') return null
+        return event.archived.config
+      },
+      questions: ({ event }) => {
+        if (event.type !== 'LOAD_FROM_ARCHIVE') return []
+        return flattenConfig(event.archived.config)
+      },
+      session: ({ event }) => {
+        if (event.type !== 'LOAD_FROM_ARCHIVE') return null
+        // Reactivate the session if it was paused or in_progress
+        const session = event.archived.session
+        if (session.status === 'paused') {
+          return { ...session, status: 'in_progress' as const, updatedAt: new Date().toISOString() }
+        }
+        return session
+      },
+      currentQuestionIndex: ({ event }) => {
+        if (event.type !== 'LOAD_FROM_ARCHIVE') return 0
+        return event.archived.session.currentQuestionIndex
+      },
+    }),
+
+    // Save to archive (fire and forget - errors are logged but don't block)
+    saveToArchiveAsync: ({ context }) => {
+      if (context.session && context.config) {
+        saveInterviewToArchive(context.session, context.config).catch((e) =>
+          console.error('Failed to save to archive:', e)
+        )
+      }
+    },
 
     recordAnswer: assign({
       session: ({ context, event }) => {
@@ -508,6 +554,17 @@ export const interviewMachine = setup({
           target: 'interviewing',
           actions: 'resumeSession',
         },
+        LOAD_FROM_ARCHIVE: [
+          {
+            target: 'completed',
+            guard: ({ event }) => event.archived.session.status === 'completed',
+            actions: 'loadFromArchive',
+          },
+          {
+            target: 'interviewing',
+            actions: 'loadFromArchive',
+          },
+        ],
       },
     },
     loaded: {
@@ -527,11 +584,11 @@ export const interviewMachine = setup({
       on: {
         COMPLETE_INTERVIEW: {
           target: 'completed',
-          actions: 'completeSession',
+          actions: ['completeSession', 'saveToArchiveAsync'],
         },
         PAUSE_INTERVIEW: {
           target: 'paused',
-          actions: 'pauseSession',
+          actions: ['pauseSession', 'saveToArchiveAsync'],
         },
         RESET: {
           target: 'loaded',
@@ -580,7 +637,7 @@ export const interviewMachine = setup({
             input: ({ context }) => ({ session: context.session!, config: context.config! }),
             onDone: {
               target: 'question',
-              actions: 'clearError',
+              actions: ['clearError', 'saveToArchiveAsync'],
             },
             onError: {
               target: 'question',

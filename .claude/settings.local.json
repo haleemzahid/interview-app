@@ -9,7 +9,11 @@
       "Bash(npx @tanstack/router-cli generate:*)",
       "Bash(bun run build)",
       "Bash(npm run type-check:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(bun run:*)",
+      "Bash(timeout 10 bun run dev:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
